@@ -1,0 +1,6 @@
+@ATM.API_HostAddress = http://localhost:5006
+
+GET {{ATM.API_HostAddress}}
+Accept: application/json
+
+###
