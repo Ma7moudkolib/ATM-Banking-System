@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATM.API", "src\ATM.API\ATM.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATM.Domain", "src\ATM.Domain\ATM.Domain.csproj", "{E79E6DC8-13C5-47BA-9D29-F6A6878F573C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATM.Infrastructure", "src\ATM.Infrastructure\ATM.Infrastructure.csproj", "{12FE87B5-BFB4-4498-9E30-39D39D736AF1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{E79E6DC8-13C5-47BA-9D29-F6A6878F573C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E79E6DC8-13C5-47BA-9D29-F6A6878F573C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E79E6DC8-13C5-47BA-9D29-F6A6878F573C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12FE87B5-BFB4-4498-9E30-39D39D736AF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12FE87B5-BFB4-4498-9E30-39D39D736AF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12FE87B5-BFB4-4498-9E30-39D39D736AF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12FE87B5-BFB4-4498-9E30-39D39D736AF1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -30,5 +36,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{3D977446-57F1-4BDF-B78E-D91F259FAF46} = {E694BAE2-6237-4622-9C45-B02E2D699866}
 		{E79E6DC8-13C5-47BA-9D29-F6A6878F573C} = {E694BAE2-6237-4622-9C45-B02E2D699866}
+		{12FE87B5-BFB4-4498-9E30-39D39D736AF1} = {E694BAE2-6237-4622-9C45-B02E2D699866}
 	EndGlobalSection
 EndGlobal
