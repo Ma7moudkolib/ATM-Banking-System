@@ -4,8 +4,8 @@ namespace ATM.Domain.Entities
 {
     public class LedgerEntry : BaseEntity
     {
-        public Guid TransactionId { get; private set; }
-        public Guid AccountId { get; private set; }
+        public int TransactionId { get; private set; }
+        public int AccountId { get; private set; }
         public LedgerEntryType EntryType { get; private set; }
         public decimal Amount { get; private set; }
         public string Currency { get; private set; }
@@ -20,15 +20,14 @@ namespace ATM.Domain.Entities
         private LedgerEntry() { }
 
         public LedgerEntry(
-            Guid transactionId,
-            Guid accountId,
+            int transactionId,
+            int accountId,
             LedgerEntryType entryType,
             decimal amount,
             string currency,
             decimal balanceAfter,
             string description)
         {
-            Id = Guid.NewGuid();
             TransactionId = transactionId;
             AccountId = accountId;
             EntryType = entryType;

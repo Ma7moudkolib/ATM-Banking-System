@@ -3,7 +3,7 @@
     public class AuditLog : BaseEntity
     {
         public string EntityType { get; private set; }
-        public Guid EntityId { get; private set; }
+        public int EntityId { get; private set; }
         public string Action { get; private set; }
         public string Changes { get; private set; }
         public string PerformedBy { get; private set; }
@@ -12,9 +12,9 @@
 
         private AuditLog() { }
 
-        public AuditLog(string entityType, Guid entityId, string action, string changes, string performedBy, string ipAddress)
+        public AuditLog(string entityType, int entityId, string action, string changes, string performedBy, string ipAddress)
         {
-            Id = Guid.NewGuid();
+
             EntityType = entityType;
             EntityId = entityId;
             Action = action;

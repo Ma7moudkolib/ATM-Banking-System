@@ -1,4 +1,5 @@
 ﻿using ATM.Domain.Enums;
+using ATM.Domain.Exceptions;
 
 namespace ATM.Domain.Entities
 {
@@ -15,7 +16,6 @@ namespace ATM.Domain.Entities
 
         public AtmMachine(string machineCode, string location, decimal initialCash = 100000, decimal maxWithdrawal = 1000)
         {
-            Id = Guid.NewGuid();
             MachineCode = machineCode;
             Location = location;
             Status = AtmStatus.Online;

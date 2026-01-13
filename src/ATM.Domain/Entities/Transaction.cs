@@ -5,9 +5,9 @@ namespace ATM.Domain.Entities
     public class Transaction : BaseEntity
     {
         public string TransactionReference { get; private set; }
-        public Guid AccountId { get; private set; }
-        public Guid? CardId { get; private set; }
-        public Guid? AtmMachineId { get; private set; }
+        public int AccountId { get; private set; }
+        public int? CardId { get; private set; }
+        public int? AtmMachineId { get; private set; }
         public TransactionType Type { get; private set; }
         public TransactionStatus Status { get; private set; }
         public decimal Amount { get; private set; }
@@ -25,16 +25,15 @@ namespace ATM.Domain.Entities
         private Transaction() { }
 
         public Transaction(
-            Guid accountId,
+            int accountId,
             TransactionType type,
             decimal amount,
             string currency,
             decimal balanceBefore,
-            Guid? cardId = null,
-            Guid? atmMachineId = null,
+            int? cardId = null,
+            int? atmMachineId = null,
             string description = null)
         {
-            Id = Guid.NewGuid();
             TransactionReference = GenerateReference();
             AccountId = accountId;
             CardId = cardId;
