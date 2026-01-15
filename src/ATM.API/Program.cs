@@ -26,12 +26,12 @@ builder.Services.AddVersionedApiExplorer(options =>
 });
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
-builder.Services.AddOpenApi();
+
 
 builder.Services.AddDbContext<AtmDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        b => b.MigrationsAssembly("AtmApi.Infrastructure")
+        b => b.MigrationsAssembly("ATM.Infrastructure")
     )
 );
 builder.Services.AddMemoryCache();
@@ -39,6 +39,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
 
 builder.Services.AddScoped<IServiceManager, ServiceManager>();
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
