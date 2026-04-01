@@ -7,29 +7,34 @@ A production-ready monolithic ATM API built with ASP.NET Core 9 following Clean 
 The solution is organized into four distinct layers following Clean Architecture:
 
 ```
-AtmApi/
-├── src/
-│   ├── AtmApi.Domain/          # Core business logic (no dependencies)
+ATM-Banking-System/
+├── backend/
+│   ├── ATM-Banking-System.sln  # Solution file
+│   ├── ATM.Domain/             # Core business logic (no dependencies)
 │   │   ├── Entities/           # Domain entities
 │   │   ├── ValueObjects/       # Value objects (Money, CardNumber, Pin)
 │   │   ├── Enums/             # Domain enums
 │   │   └── Exceptions/        # Domain exceptions
 │   │
-│   ├── AtmApi.Application/     # Application services & interfaces
+│   ├── ATM.Application/        # Application services & interfaces
 │   │   ├── DTOs/              # Data Transfer Objects
 │   │   ├── Interfaces/        # Service & repository interfaces
 │   │   └── Services/          # Application services
 │   │
-│   ├── AtmApi.Infrastructure/  # Data access & external concerns
-│   │   ├── Persistence/       # EF Core DbContext
+│   ├── ATM.Infrastructure/     # Data access & external concerns
+│   │   ├── Context/           # EF Core DbContext
 │   │   ├── Repositories/      # Repository implementations
 │   │   └── UnitOfWork.cs      # Transaction management
 │   │
-│   └── AtmApi.API/            # Web API layer
-│       ├── Controllers/       # API endpoints
-│       ├── Middleware/        # Exception handling
-│       ├── Validators/        # Request validation
-│       └── Program.cs         # Application startup
+│   ├── ATM.API/               # Web API layer
+│   │   ├── Controllers/       # API endpoints
+│   │   ├── Middleware/        # Exception handling
+│   │   ├── Validators/        # Request validation
+│   │   └── Program.cs         # Application startup
+│   │
+│   └── ATM.Tests/             # Unit tests
+│       ├── Services/          # Service unit tests
+│       └── ATM.Tests.csproj   # Test project
 ```
 
 ## 🎯 Key Features
@@ -58,6 +63,9 @@ AtmApi/
 - ✅ **FluentValidation** for request validation
 - ✅ **API Versioning** (v1)
 - ✅ **Standardized API Responses**
+- ✅ **Comprehensive Unit Testing** with xUnit and Moq
+- ✅ **Code Coverage** tracking with Coverlet
+- ✅ **Modular Project Structure** for scalability
 
 ## 📦 Prerequisites
 
@@ -145,14 +153,33 @@ Update `appsettings.json` with your connection string:
 ### 4. Run the Application
 
 ```bash
-cd src/AtmApi.API
+# From backend directory
+cd ATM.API
 dotnet run
 ```
 
 The API will be available at:
 - HTTPS: `https://localhost:7001`
 - HTTP: `http://localhost:5001`
-- Swagger: `https://localhost:7001/swagger`
+
+### 5. Run Unit Tests
+
+```bash
+# From backend directory
+dotnet test ATM.Tests/ATM.Tests.csproj
+
+# Run with verbose output
+dotnet test ATM.Tests/ATM.Tests.csproj -v normal
+
+# Run with code coverage
+dotnet test ATM.Tests/ATM.Tests.csproj /p:CollectCoverage=true
+```
+
+**Test Coverage:**
+- ✅ AccountService Tests
+- ✅ AuthenticationService Tests
+- ✅ TransactionService Tests
+- ✅ AuditService Tests
 
 ## 📝 Seeded Test Data
 
@@ -298,6 +325,30 @@ Content-Type: application/json
   "pageNumber": 1,
   "pageSize": 10
 }
+```
+
+## 🧪 Unit Testing
+
+The project includes comprehensive unit tests for all major services using **xUnit** and **Moq**:
+
+### Test Files
+- [AccountServiceTests.cs](backend/ATM.Tests/Services/AccountServiceTests.cs)
+- [AuthenticationServiceTests.cs](backend/ATM.Tests/Services/AuthenticationServiceTests.cs)
+- [TransactionServiceTests.cs](backend/ATM.Tests/Services/TransactionServiceTests.cs)
+- [AuditServiceTests.cs](backend/ATM.Tests/Services/AuditServiceTests.cs)
+
+### Running Tests
+
+```bash
+# Run all tests
+cd backend
+dotnet test
+
+# Run specific test class
+dotnet test --filter ClassName=AccountServiceTests
+
+# Run with Live Unit Testing (Visual Studio)
+# Ctrl + Alt + U
 ```
 
 ## 🧪 Testing with cURL
@@ -467,16 +518,44 @@ All errors return standardized responses:
 ## 🔄 Migration Commands
 
 ```bash
+# Navigate to backend directory
+cd backend
+
 # Create migration
-dotnet ef migrations add InitialCreate -p src/AtmApi.Infrastructure -s src/AtmApi.API
+dotnet ef migrations add MigrationName -p ATM.Infrastructure -s ATM.API
 
 # Update database
-dotnet ef database update -p src/AtmApi.Infrastructure -s src/AtmApi.API
+dotnet ef database update -p ATM.Infrastructure -s ATM.API
 
 # Drop database
-dotnet ef database drop -p src/AtmApi.Infrastructure -s src/AtmApi.API
+dotnet ef database drop -p ATM.Infrastructure -s ATM.API
+
+# Remove last migration
+dotnet ef migrations remove -p ATM.Infrastructure -s ATM.API
 ```
 
+## 📁 Project Structure
+
+```
+backend/
+├── ATM-Banking-System.sln
+├── ATM.Domain/               # Business logic layer
+├── ATM.Application/          # Application services layer
+├── ATM.Infrastructure/       # Data access layer
+├── ATM.API/                  # Presentation layer
+└── ATM.Tests/                # Unit tests (new)
+```
+
+
+## � Technology Stack
+
+- **Framework**: ASP.NET Core 9
+- **Database**: SQL Server / LocalDB
+- **ORM**: Entity Framework Core 9
+- **Validation**: FluentValidation
+- **Testing**: xUnit, Moq
+- **Security**: BCrypt.NET
+- **Language**: C# 13, .NET 9
 
 ## 📚 Additional Resources
 
@@ -484,6 +563,8 @@ dotnet ef database drop -p src/AtmApi.Infrastructure -s src/AtmApi.API
 - [ASP.NET Core Documentation](https://docs.microsoft.com/en-us/aspnet/core/)
 - [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/)
 - [FluentValidation](https://docs.fluentvalidation.net/)
+- [xUnit](https://xunit.net/)
+- [Moq](https://github.com/moq)
 
 ## 📄 License
 
