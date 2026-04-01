@@ -11,52 +11,50 @@ export default function TransactionCard({ transaction }: TransactionCardProps) {
     transaction.type?.toLowerCase() === 'withdrawal' ||
     transaction.type?.toLowerCase() === 'withdraw';
   const Icon = isWithdrawal ? ArrowUpRight : ArrowDownLeft;
-  const amountColor = isWithdrawal ? 'text-accent-red' : 'text-accent-green';
-  const iconBg = isWithdrawal ? 'bg-red-500/10' : 'bg-emerald-500/10';
-  const iconColor = isWithdrawal ? 'text-accent-red' : 'text-accent-green';
-  const prefix = isWithdrawal ? '-' : '+';
+  const amountColor = isWithdrawal ? 'text-danger-400' : 'text-success-400';
+  const iconBgColor = isWithdrawal ? 'bg-danger-500/15' : 'bg-success-500/15';
+  const prefix = isWithdrawal ? '−' : '+';
 
   return (
-    <div className="glass-card-light p-4 hover:bg-navy-600/40 transition-all duration-200 group">
-      <div className="flex items-center gap-3">
-        {/* Icon */}
-        <div className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
-          <Icon className={`w-5 h-5 ${iconColor}`} />
+    <div className="glass-card-light p-4 hover:bg-navy-800/40 transition-all duration-150 group border border-navy-700/40 hover:border-navy-600/60">
+      <div className="flex items-center gap-4">
+        {/* Icon circle */}
+        <div
+          className={`w-10 h-10 rounded-lg ${iconBgColor} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}
+        >
+          <Icon className={`w-5 h-5 ${amountColor}`} />
         </div>
 
-        {/* Center: type + reference */}
+        {/* Center: type + date */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mb-1">
             <span
-              className={`text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md ${
+              className={`text-xs font-semibold uppercase tracking-widest px-2 py-0.5 rounded-md ${
                 isWithdrawal
-                  ? 'bg-red-500/15 text-accent-red-light'
-                  : 'bg-emerald-500/15 text-accent-green-light'
+                  ? 'bg-danger-500/20 text-danger-400'
+                  : 'bg-success-500/20 text-success-400'
               }`}
             >
               {isWithdrawal ? 'Withdrawal' : 'Deposit'}
             </span>
           </div>
-          <div className="flex items-center gap-2 mt-1">
-            <p className="text-xs text-slate-500 font-mono truncate">
-              {transaction.transactionReference
-                ? `REF: ${transaction.transactionReference.slice(0, 12)}...`
-                : ''}
-            </p>
-            <span className="text-slate-700">•</span>
-            <p className="text-xs text-slate-500">
-              {formatDate(transaction.transactionDate)}
-            </p>
-          </div>
+          <p className="text-xs text-text-muted font-mono truncate">
+            {transaction.transactionReference
+              ? `REF: ${transaction.transactionReference.slice(0, 12)}...`
+              : ''}
+          </p>
+          <p className="text-xs text-text-muted/70 mt-0.5">
+            {formatDate(transaction.transactionDate)}
+          </p>
         </div>
 
-        {/* Right: amount + balance */}
+        {/* Right: amount + balance after */}
         <div className="text-right flex-shrink-0">
-          <p className={`font-semibold ${amountColor}`}>
-            {prefix}{formatCurrency(transaction.amount)}
+          <p className={`font-semibold text-sm ${amountColor}`}>
+            {prefix}${formatCurrency(transaction.amount).slice(1)}
           </p>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Balance: {formatCurrency(transaction.balanceAfter)}
+          <p className="text-xs text-text-muted/70 mt-0.5">
+            Bal ${formatCurrency(transaction.balanceAfter).slice(1)}
           </p>
         </div>
       </div>
