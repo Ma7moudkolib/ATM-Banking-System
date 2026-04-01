@@ -5,14 +5,14 @@ import { useBalance } from '../hooks/useBalance';
 import { withdrawApi } from '../api/endpoints';
 import AmountPad from '../components/AmountPad';
 import ErrorBanner from '../components/ErrorBanner';
-import { formatCurrency } from '../utils/formatCurrency';
+import NavBar from '../components/NavBar';
 import {
   ArrowUpRight,
   ArrowLeft,
   CheckCircle2,
   Loader2,
   MapPin,
-  Receipt,
+  CopyCheck,
 } from 'lucide-react';
 import type { TransactionData } from '../types';
 
@@ -24,7 +24,7 @@ const ATM_MACHINES = [
 
 export default function WithdrawPage() {
   const navigate = useNavigate();
-  const { sessionId } = useAuth();
+  const { sessionId, customerName, cardNumber, logout } = useAuth();
   const { balance, fetchBalance } = useBalance();
   const [selectedAmount, setSelectedAmount] = useState<number>(0);
   const [atmCode, setAtmCode] = useState(ATM_MACHINES[0].code);
@@ -32,6 +32,11 @@ export default function WithdrawPage() {
   const [error, setError] = useState<string | null>(null);
   const [errorList, setErrorList] = useState<string[]>([]);
   const [result, setResult] = useState<TransactionData | null>(null);
+
+  function handleLogout() {
+    logout();
+    navigate('/login');
+  }
 
   useEffect(() => {
     fetchBalance();
@@ -43,7 +48,7 @@ export default function WithdrawPage() {
     if (amount > 1000) return 'Maximum withdrawal is $1,000';
     if (amount % 20 !== 0) return 'Amount must be a multiple of $20';
     if (balance && amount > balance.availableBalance) {
-      return `Insufficient funds. Available: ${formatCurrency(balance.availableBalance)}`;
+      return `Insufficient funds. Available: $${(balance.availableBalance / 100).toFixed(2)}`;
     }
     return null;
   }
@@ -91,150 +96,208 @@ export default function WithdrawPage() {
 
   // Success screen
   if (result) {
+    const refId = result.transactionReference || '';
+
+    function handleCopy() {
+      navigator.clipboard.writeText(refId);
+    }
+
     return (
-      <div className="space-y-6 animate-fade-in">
-        <div className="glass-card p-8 text-center">
-          <div className="w-16 h-16 rounded-full bg-emerald-500/15 flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 className="w-8 h-8 text-accent-green" />
+      <>
+        <NavBar
+          customerName={customerName}
+          cardNumber={cardNumber}
+          onLogout={handleLogout}
+        />
+        <div className="flex-1 flex flex-col items-center justify-center p-4 animate-page-in">
+          {/* Success icon */}
+          <div className="w-20 h-20 rounded-full bg-success-500/20 flex items-center justify-center mb-6">
+            <CheckCircle2 className="w-10 h-10 text-success-400" />
           </div>
-          <h2 className="text-xl font-bold text-white mb-1">Withdrawal Successful</h2>
-          <p className="text-slate-400 text-sm mb-6">
-            Please collect your cash
+
+          {/* Heading */}
+          <h1 className="text-3xl font-bold text-text-primary text-center mb-2 font-display">
+            Withdrawal Successful
+          </h1>
+          <p className="text-text-secondary text-sm text-center mb-8">
+            Please collect your cash from the ATM
           </p>
 
-          <div className="space-y-3 text-left glass-card-light p-4">
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-400">Amount</span>
-              <span className="text-white font-semibold">{formatCurrency(result.amount)}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-400">Reference</span>
-              <span className="text-slate-300 font-mono text-xs">{result.transactionReference}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-400">Previous Balance</span>
-              <span className="text-slate-300">{formatCurrency(result.balanceBefore)}</span>
-            </div>
-            <div className="flex justify-between text-sm border-t border-navy-600/50 pt-3">
-              <span className="text-slate-400">New Balance</span>
-              <span className="text-accent-green font-semibold">
-                {formatCurrency(result.balanceAfter)}
+          {/* Transaction details card */}
+          <div className="glass-card p-6 w-full max-w-sm space-y-4 mb-8">
+            <div className="flex items-end justify-between pb-4 border-b border-navy-700/40">
+              <span className="text-text-secondary text-sm">Amount</span>
+              <span className="text-2xl font-bold text-success-400 font-display">
+                ${(result.amount / 100).toFixed(2)}
               </span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-400">Status</span>
-              <span className="text-xs font-semibold uppercase px-2 py-0.5 rounded-md bg-emerald-500/15 text-accent-green">
-                {result.status}
+
+            <div className="flex items-center justify-between">
+              <span className="text-text-secondary text-sm">Reference</span>
+              <button
+                onClick={handleCopy}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-brand-500/15 hover:bg-brand-500/25 text-brand-400 text-xs font-mono transition-all duration-200"
+                title="Copy to clipboard"
+              >
+                <span>{refId.slice(0, 12)}...</span>
+                <CopyCheck className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-text-secondary text-sm">ATM Location</span>
+              <span className="text-text-primary text-sm font-mono">
+                {ATM_MACHINES.find((a) => a.code === atmCode)?.label.split(' - ')[1]}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between pt-4 border-t border-navy-700/40">
+              <span className="text-text-secondary text-sm">New Balance</span>
+              <span className="text-lg font-bold text-text-primary">
+                ${(result.balanceAfter / 100).toFixed(2)}
               </span>
             </div>
           </div>
-        </div>
 
-        <div className="flex gap-3">
-          <button
-            onClick={() => {
-              setResult(null);
-              setSelectedAmount(0);
-              fetchBalance();
-            }}
-            className="flex-1 py-3 rounded-xl glass-card-light text-slate-300 font-medium text-sm hover:bg-navy-600/60 transition-colors flex items-center justify-center gap-2"
-          >
-            <Receipt className="w-4 h-4" />
-            New Withdrawal
-          </button>
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="flex-1 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm transition-colors flex items-center justify-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Dashboard
-          </button>
+          {/* Action buttons */}
+          <div className="flex flex-col gap-3 w-full max-w-sm">
+            <button
+              onClick={() => {
+                setResult(null);
+                setSelectedAmount(0);
+                setError(null);
+                fetchBalance();
+              }}
+              className="px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-all duration-200 focus-ring"
+            >
+              Another Withdrawal
+            </button>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="px-6 py-3 rounded-xl bg-navy-800/60 hover:bg-navy-800/80 text-text-primary font-semibold text-sm transition-all duration-200 border border-navy-700/40 focus-ring"
+            >
+              Back to Dashboard
+            </button>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="p-2 rounded-lg glass-card-light hover:bg-navy-600/60 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 text-slate-400" />
-        </button>
-        <div>
-          <h1 className="text-lg font-bold text-white flex items-center gap-2">
-            <ArrowUpRight className="w-5 h-5 text-accent-red" />
-            Cash Withdrawal
-          </h1>
-          {balance && (
-            <p className="text-xs text-slate-500 mt-0.5">
-              Available: {formatCurrency(balance.availableBalance)}
+    <>
+      <NavBar
+        customerName={customerName}
+        cardNumber={cardNumber}
+        pageTitle="Withdrawal"
+        onLogout={handleLogout}
+      />
+
+      <div className="flex-1 flex flex-col p-4 space-y-5 animate-page-in">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="p-2.5 rounded-lg glass-card-light hover:bg-navy-800/60 transition-all duration-200 focus-ring text-text-secondary hover:text-text-primary"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </button>
+          <div>
+            <h1 className="text-lg font-bold text-text-primary flex items-center gap-2">
+              <ArrowUpRight className="w-5 h-5 text-danger-400" />
+              Withdraw Cash
+            </h1>
+            <p className="text-xs text-text-secondary/70 mt-0.5">
+              {balance
+                ? `Available: $${(balance.availableBalance / 100).toFixed(2)}`
+                : 'Loading balance...'}
             </p>
-          )}
+          </div>
         </div>
-      </div>
 
-      {error && (
-        <ErrorBanner message={error} errors={errorList} onDismiss={() => setError(null)} />
-      )}
-
-      {/* Amount selection */}
-      <div className="glass-card p-5">
-        <h2 className="text-xs text-slate-500 uppercase tracking-wider font-medium mb-4">
-          Select Amount
-        </h2>
-        <AmountPad
-          onAmountSelected={setSelectedAmount}
-          quickAmounts={QUICK_AMOUNTS}
-          max={Math.min(1000, balance?.availableBalance ?? 1000)}
-          min={20}
-          multipleOf={20}
-          selectedAmount={selectedAmount}
-        />
-      </div>
-
-      {/* ATM Selection */}
-      <div className="glass-card p-5">
-        <h2 className="text-xs text-slate-500 uppercase tracking-wider font-medium mb-3 flex items-center gap-2">
-          <MapPin className="w-3.5 h-3.5" />
-          ATM Location
-        </h2>
-        <select
-          id="atm-selector"
-          value={atmCode}
-          onChange={(e) => setAtmCode(e.target.value)}
-          className="w-full py-3 px-4 rounded-xl bg-navy-700/60 border border-navy-600/40 text-white text-sm focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/10 transition-all appearance-none cursor-pointer"
-        >
-          {ATM_MACHINES.map((atm) => (
-            <option key={atm.code} value={atm.code} className="bg-navy-800">
-              {atm.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Confirm button */}
-      <button
-        id="confirm-withdraw"
-        onClick={handleConfirm}
-        disabled={loading || selectedAmount <= 0}
-        className="w-full py-3.5 rounded-xl bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-semibold text-sm tracking-wide transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-red-500/20"
-      >
-        {loading ? (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin" />
-            Processing...
-          </>
-        ) : (
-          <>
-            <ArrowUpRight className="w-4 h-4" />
-            Withdraw {selectedAmount > 0 ? formatCurrency(selectedAmount) : ''}
-          </>
+        {error && (
+          <ErrorBanner
+            message={error}
+            errors={errorList}
+            onDismiss={() => setError(null)}
+          />
         )}
-      </button>
-    </div>
+
+        {/* Available Balance Pill */}
+        {balance && (
+          <div className="inline-flex px-4 py-2 rounded-full bg-brand-500/15 border border-brand-500/30 w-fit">
+            <span className="text-xs text-text-secondary/70">Available: </span>
+            <span className="text-xs font-bold text-brand-400 ml-1 font-mono">
+              ${(balance.availableBalance / 100).toFixed(2)}
+            </span>
+          </div>
+        )}
+
+        {/* Amount Selection Card */}
+        <div className="glass-card p-6">
+          <h2 className="text-xs text-text-secondary uppercase tracking-widest font-semibold mb-5">
+            Enter Amount
+          </h2>
+          <AmountPad
+            onAmountSelected={setSelectedAmount}
+            quickAmounts={QUICK_AMOUNTS}
+            max={Math.min(1000, balance?.availableBalance ?? 1000)}
+            min={20}
+            multipleOf={20}
+            selectedAmount={selectedAmount}
+          />
+        </div>
+
+        {/* ATM Location Selection */}
+        <div className="glass-card p-6">
+          <h2 className="text-xs text-text-secondary uppercase tracking-widest font-semibold mb-4 flex items-center gap-2">
+            <MapPin className="w-4 h-4" />
+            Select ATM Location
+          </h2>
+          <div className="space-y-2">
+            {ATM_MACHINES.map((atm) => (
+              <button
+                key={atm.code}
+                onClick={() => setAtmCode(atm.code)}
+                className={`w-full p-4 rounded-lg transition-all duration-200 border text-left ${
+                  atmCode === atm.code
+                    ? 'bg-brand-500/15 border-brand-500/40 text-brand-400'
+                    : 'bg-navy-800/40 border-navy-700/60 text-text-secondary hover:border-brand-500/40'
+                }`}
+              >
+                <p className="font-medium text-sm">{atm.label}</p>
+                <p className="text-xs text-text-muted mt-1">• Available</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Confirm Button */}
+        <button
+          id="confirm-withdraw"
+          onClick={handleConfirm}
+          disabled={loading || selectedAmount <= 0}
+          className="w-full py-3.5 rounded-xl bg-gradient-to-r from-danger-600 to-danger-500 hover:from-danger-500 hover:to-danger-400 disabled:from-danger-600/50 disabled:to-danger-500/50 text-white font-semibold text-sm tracking-wide transition-all duration-200 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus-ring glow-danger"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Processing...</span>
+            </>
+          ) : selectedAmount > 0 ? (
+            <>
+              <ArrowUpRight className="w-4 h-4" />
+              <span>Withdraw ${(selectedAmount / 100).toFixed(2)}</span>
+            </>
+          ) : (
+            <>
+              <ArrowUpRight className="w-4 h-4" />
+              <span>Select Amount</span>
+            </>
+          )}
+        </button>
+      </div>
+    </>
   );
 }
