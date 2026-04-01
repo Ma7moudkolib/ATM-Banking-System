@@ -3,15 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend", "backend", "{E694BAE2-6237-4622-9C45-B02E2D699866}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATM.API", "ATM.API\ATM.API.csproj", "{3D977446-57F1-4BDF-B78E-D91F259FAF46}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATM.API", "backend\ATM.API\ATM.API.csproj", "{3D977446-57F1-4BDF-B78E-D91F259FAF46}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATM.Domain", "ATM.Domain\ATM.Domain.csproj", "{E79E6DC8-13C5-47BA-9D29-F6A6878F573C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATM.Domain", "backend\ATM.Domain\ATM.Domain.csproj", "{E79E6DC8-13C5-47BA-9D29-F6A6878F573C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATM.Infrastructure", "ATM.Infrastructure\ATM.Infrastructure.csproj", "{12FE87B5-BFB4-4498-9E30-39D39D736AF1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATM.Infrastructure", "backend\ATM.Infrastructure\ATM.Infrastructure.csproj", "{12FE87B5-BFB4-4498-9E30-39D39D736AF1}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATM.Application", "backend\ATM.Application\ATM.Application.csproj", "{30EC4FB5-1285-487E-8D22-75F3F4FA2A52}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATM.Application", "ATM.Application\ATM.Application.csproj", "{30EC4FB5-1285-487E-8D22-75F3F4FA2A52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,9 +38,5 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{3D977446-57F1-4BDF-B78E-D91F259FAF46} = {E694BAE2-6237-4622-9C45-B02E2D699866}
-		{E79E6DC8-13C5-47BA-9D29-F6A6878F573C} = {E694BAE2-6237-4622-9C45-B02E2D699866}
-		{12FE87B5-BFB4-4498-9E30-39D39D736AF1} = {E694BAE2-6237-4622-9C45-B02E2D699866}
-		{30EC4FB5-1285-487E-8D22-75F3F4FA2A52} = {E694BAE2-6237-4622-9C45-B02E2D699866}
 	EndGlobalSection
 EndGlobal
