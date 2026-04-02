@@ -12,7 +12,6 @@ import {
   Building2,
   DollarSign,
   Shield,
-  Loader2,
   BadgeCheck,
   AlertCircle,
 } from 'lucide-react';
@@ -80,11 +79,16 @@ export default function AccountPage() {
           pageTitle="Account"
           onLogout={handleLogout}
         />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 text-brand-400 animate-spin mx-auto mb-3" />
-            <p className="text-text-secondary text-sm">Loading account details...</p>
+        <div className="flex-1 flex flex-col p-4 space-y-5">
+          <div className="flex items-center gap-3">
+            <div className="skeleton w-10 h-10 rounded-lg animate-shimmer" />
+            <div>
+              <div className="skeleton w-32 h-6 rounded animate-shimmer mb-1.5" />
+              <div className="skeleton w-24 h-3 rounded animate-shimmer" />
+            </div>
           </div>
+          <div className="glass-card p-6 h-64 skeleton animate-shimmer" />
+          <div className="glass-card p-6 h-36 skeleton animate-shimmer" />
         </div>
       </>
     );
@@ -225,13 +229,13 @@ export default function AccountPage() {
           <div className="flex items-end justify-between mb-5">
             <div>
               <p className="text-xs text-text-secondary/70 mb-1">Used today</p>
-              <p className="text-3xl font-bold text-text-primary font-display">
+              <p className="text-3xl font-bold text-text-primary font-mono tabular-nums tracking-tight">
                 ${formatCurrency(account.dailyWithdrawalUsed).slice(1)}
               </p>
             </div>
             <div className="text-right">
               <p className="text-xs text-text-secondary/70 mb-1">Limit</p>
-              <p className="text-xl font-semibold text-text-secondary">
+              <p className="text-xl font-semibold text-text-secondary font-mono tabular-nums">
                 ${formatCurrency(account.dailyWithdrawalLimit).slice(1)}
               </p>
             </div>
@@ -253,12 +257,11 @@ export default function AccountPage() {
             </div>
           </div>
 
-          {/* Remaining amount */}
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-text-muted">
+          <div className="flex items-center justify-between mt-3">
+            <p className="text-xs text-text-muted font-medium">
               {withdrawalPercentage.toFixed(0)}% used
             </p>
-            <p className="text-xs text-text-secondary font-mono">
+            <p className="text-xs text-text-secondary font-mono tabular-nums font-medium">
               ${formatCurrency(Math.max(0, account.dailyWithdrawalLimit - account.dailyWithdrawalUsed)).slice(1)} remaining
             </p>
           </div>
