@@ -11,7 +11,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Calendar,
-  Loader2,
   FileX,
   RotateCcw,
 } from 'lucide-react';
@@ -155,11 +154,14 @@ export default function HistoryPage() {
 
         {/* Transaction List or Empty State */}
         {loading ? (
-          <div className="flex justify-center items-center py-16">
-            <div className="text-center">
-              <Loader2 className="w-8 h-8 text-brand-400 animate-spin mx-auto mb-3" />
-              <p className="text-text-secondary text-sm">Loading transactions...</p>
-            </div>
+          <div className="space-y-2.5">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="skeleton h-[62px] rounded-xl animate-shimmer"
+                style={{ opacity: 1 - i * 0.1 }}
+              />
+            ))}
           </div>
         ) : transactions.length === 0 ? (
           <div className="glass-card p-12 text-center">
