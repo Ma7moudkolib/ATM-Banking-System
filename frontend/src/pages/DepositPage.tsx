@@ -116,7 +116,7 @@ export default function DepositPage() {
           <div className="glass-card p-6 w-full max-w-sm space-y-4 mb-8">
             <div className="flex items-end justify-between pb-4 border-b border-navy-700/40">
               <span className="text-text-secondary text-sm">Amount</span>
-              <span className="text-2xl font-bold text-success-400 font-display">
+              <span className="text-2xl font-bold text-success-400 font-mono tracking-tight tabular-nums">
                 +${(result.amount / 100).toFixed(2)}
               </span>
             </div>
@@ -142,7 +142,7 @@ export default function DepositPage() {
 
             <div className="flex items-center justify-between pt-4 border-t border-navy-700/40">
               <span className="text-text-secondary text-sm">New Balance</span>
-              <span className="text-lg font-bold text-text-primary">
+              <span className="text-lg font-bold text-text-primary font-mono tabular-nums">
                 ${(result.balanceAfter / 100).toFixed(2)}
               </span>
             </div>
