@@ -14,11 +14,11 @@ export default function NavBar({
   onLogout,
 }: NavBarProps) {
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-md bg-navy-900/70 border-b border-white/[0.06]">
+    <header className="sticky top-0 z-40 bg-bg-card border-b border-border shadow-sm">
       <div className="h-16 flex items-center justify-between px-4">
         {/* Left: Logo + Wordmark */}
         <div className="flex items-center gap-3 min-w-0">
-          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-brand-600 to-brand-400 flex items-center justify-center">
+          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-brand-primary to-blue-600 flex items-center justify-center">
             <Lock className="w-5 h-5 text-white" />
           </div>
           <div className="hidden sm:block">
@@ -44,7 +44,7 @@ export default function NavBar({
           <button
             onClick={onLogout}
             id="logout-button"
-            className="p-2 rounded-lg text-text-secondary hover:text-danger-400 hover:bg-danger-500/10 transition-all duration-200 focus-ring"
+            className="p-2 rounded-md text-text-secondary hover:text-danger hover:bg-danger/10 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-1"
             title="Logout"
             aria-label="Logout"
           >
