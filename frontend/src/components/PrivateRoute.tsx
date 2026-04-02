@@ -49,10 +49,10 @@ export default function PrivateRoute({ children }: PrivateRouteProps) {
       <div className="min-h-screen flex items-center justify-center">
         <div className="glass-card p-8 text-center animate-fade-in">
           <div className="relative inline-flex mb-4">
-            <Shield className="w-12 h-12 text-navy-400" />
-            <Loader2 className="w-6 h-6 text-accent-green absolute -bottom-1 -right-1 animate-spin" />
+            <Shield className="w-12 h-12 text-brand-400" />
+            <Loader2 className="w-6 h-6 text-brand-400 absolute -bottom-1 -right-1 animate-spin" />
           </div>
-          <p className="text-slate-400 text-sm">Validating session...</p>
+          <p className="text-text-secondary text-sm">Validating session...</p>
         </div>
       </div>
     );
