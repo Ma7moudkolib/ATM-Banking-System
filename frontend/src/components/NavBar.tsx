@@ -14,7 +14,7 @@ export default function NavBar({
   onLogout,
 }: NavBarProps) {
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-md bg-navy-900/60 border-b border-navy-500/30">
+    <header className="sticky top-0 z-40 backdrop-blur-md bg-navy-900/70 border-b border-white/[0.06]">
       <div className="h-16 flex items-center justify-between px-4">
         {/* Left: Logo + Wordmark */}
         <div className="flex items-center gap-3 min-w-0">
