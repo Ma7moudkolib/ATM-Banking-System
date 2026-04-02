@@ -1,10 +1,10 @@
 import { Clock, AlertTriangle, LogOut, RotateCw } from 'lucide-react';
-import { useSession } from '../context/SessionContext';
+import { useSession } from '../hooks/useSession';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function SessionTimer() {
-  const { formattedTime, remainingSeconds, isActive, showWarning, dismissWarning } =
+  const { formattedTime, remainingSeconds, isActive, showWarning, dismissWarning, resetTimer } =
     useSession();
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -17,6 +17,11 @@ export default function SessionTimer() {
   function handleLogout() {
     logout();
     navigate('/login');
+  }
+
+  function handleStayLoggedIn() {
+    resetTimer();
+    dismissWarning();
   }
 
   return (
@@ -64,7 +69,7 @@ export default function SessionTimer() {
                 Logout
               </button>
               <button
-                onClick={dismissWarning}
+                onClick={handleStayLoggedIn}
                 className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-medium transition-all duration-200 flex items-center justify-center gap-2"
                 aria-label="Stay logged in"
               >
