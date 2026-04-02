@@ -1,339 +1,225 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useAuth } from '../context/AuthContext';
-import { loginApi } from '../api/endpoints';
-import { formatCardNumber } from '../utils/luhn';
-import ErrorBanner from '../components/ErrorBanner';
-import {
-  CreditCard,
-  Lock,
-  Eye,
-  EyeOff,
-  Loader2,
-  AlertCircle,
-  Phone,
-} from 'lucide-react';
+import { AlertCircle, Lock } from 'lucide-react';
 
-const loginSchema = z.object({
-  cardNumber: z
-    .string()
-    .min(1, 'Card number is required')
-    .transform((val) => val.replace(/[\s-]/g, ''))
-    .pipe(
-      z
-        .string()
-        .length(16, 'Card number must be 16 digits')
-        .regex(/^\d+$/, 'Card number must contain only digits')
-    ),
-  pin: z
-    .string()
-    .length(4, 'PIN must be exactly 4 digits')
-    .regex(/^\d+$/, 'PIN must contain only digits'),
-});
-
-type LoginFormData = z.input<typeof loginSchema>;
+const VALID_CARDS = [
+  { cardNumber: "4532015112830366", pin: "1234", name: "John Doe" },
+  { cardNumber: "5425233430109903", pin: "5678", name: "Jane Smith" },
+];
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuth();
-  const [showPin, setShowPin] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [errorList, setErrorList] = useState<string[]>([]);
-  const [failedAttempts, setFailedAttempts] = useState(0);
-  const [isBlocked, setIsBlocked] = useState(false);
-  const [cardDisplay, setCardDisplay] = useState('');
-  const [pinError, setPinError] = useState(false);
-  const cardInputRef = useRef<HTMLInputElement>(null);
-  const pinInputRef = useRef<HTMLInputElement>(null);
+  const [cardNumber, setCardNumber] = useState('');
+  const [pin, setPin] = useState(['', '', '', '']);
+  const [error, setError] = useState(false);
+  const pinRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { cardNumber: '', pin: '' },
-  });
-
-  const pinValue = watch('pin');
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard', { replace: true });
+  const handleCardChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 16) {
+      const formatted = value.match(/.{1,4}/g)?.join('-') || value;
+      setCardNumber(formatted);
+      setError(false);
     }
-  }, [isAuthenticated, navigate]);
+  };
 
-  function handleCardNumberChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const raw = e.target.value.replace(/\D/g, '').slice(0, 16);
-    const formatted = formatCardNumber(raw);
-    setCardDisplay(formatted);
-    setValue('cardNumber', formatted, { shouldValidate: false });
-  }
+  const handlePinChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    const digit = val.replace(/\D/g, '').slice(-1);
 
-  function handlePinChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value.slice(0, 4).replace(/\D/g, '');
-    setValue('pin', value, { shouldValidate: false });
-    setPinError(false);
-  }
+    const newPin = [...pin];
+    newPin[index] = digit;
+    setPin(newPin);
+    setError(false);
 
-  async function onSubmit(data: LoginFormData) {
-    if (isBlocked) return;
-    setLoading(true);
-    setErrorMessage(null);
-    setErrorList([]);
-    setPinError(false);
-
-    try {
-      const response = await loginApi({
-        cardNumber: data.cardNumber,
-        pin: data.pin,
-      });
-
-      if (response.success && response.data) {
-        login(response.data);
-        navigate('/dashboard', { replace: true });
-      } else {
-        setErrorMessage(response.message || 'Login failed');
-        setPinError(true);
-        if (response.errors?.length) {
-          setErrorList(response.errors);
-        }
-        handleFailedAttempt();
-      }
-    } catch (err: unknown) {
-      if (err && typeof err === 'object' && 'response' in err) {
-        const axiosErr = err as { response?: { status: number; data?: { message?: string; errors?: string[] } } };
-        if (axiosErr.response?.status === 401) {
-          setErrorMessage('Invalid card number or PIN');
-          setPinError(true);
-          handleFailedAttempt();
-        } else if (axiosErr.response?.status === 403) {
-          setErrorMessage('Your card is blocked. Please contact your bank.');
-          setIsBlocked(true);
-        } else {
-          setErrorMessage(axiosErr.response?.data?.message || 'An error occurred');
-          if (axiosErr.response?.data?.errors?.length) {
-            setErrorList(axiosErr.response.data.errors);
-          }
-        }
-      } else {
-        setErrorMessage(err instanceof Error ? err.message : 'Connection error. Please try again.');
-      }
-    } finally {
-      setLoading(false);
+    if (digit && index < 3) {
+      pinRefs.current[index + 1]?.focus();
     }
-  }
+  };
 
-  function handleFailedAttempt() {
-    const newCount = failedAttempts + 1;
-    setFailedAttempts(newCount);
-    if (newCount >= 3) {
-      setIsBlocked(true);
-      setErrorMessage('Too many failed attempts. Your card has been blocked. Please contact your bank.');
+  const handlePinKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !pin[index] && index > 0) {
+      pinRefs.current[index - 1]?.focus();
     }
-  }
+  };
 
-  // Blocked state: show blocked panel instead of login form
-  if (isBlocked) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-20">
-        {/* Blocked warning icon */}
-        <div className="w-20 h-20 rounded-full bg-danger-500/20 flex items-center justify-center mb-6 animate-fade-in">
-          <AlertCircle className="w-10 h-10 text-danger-400" />
-        </div>
+  const cardNumberDigits = cardNumber.replace(/\D/g, '');
+  const isFormComplete = cardNumberDigits.length === 16 && pin.every((d) => d.length === 1);
 
-        {/* Blocked message */}
-        <h1 className="text-3xl font-bold text-text-primary text-center mb-3 animate-fade-in">
-          Card Blocked
-        </h1>
-        <p className="text-text-secondary text-center mb-8 max-w-sm animate-fade-in">
-          Your card has been locked due to multiple failed login attempts. For security purposes, you will need to contact your bank to unlock your card.
-        </p>
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isFormComplete) return;
 
-        {/* Contact button */}
-        <a
-          href="tel:+1-800-555-0123"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-medium transition-all duration-200 mb-6"
-        >
-          <Phone className="w-4 h-4" />
-          Contact Your Bank
-        </a>
-
-        {/* Additional info */}
-        <p className="text-text-muted text-xs text-center max-w-sm">
-          Have any questions? Our support team is available 24/7 to assist you.
-        </p>
-      </div>
+    const rawPin = pin.join('');
+    const match = VALID_CARDS.find(
+      (c) => c.cardNumber === cardNumberDigits && c.pin === rawPin
     );
-  }
+
+    if (match) {
+      navigate('/dashboard');
+    } else {
+      setError(true);
+    }
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center px-4 py-12 min-h-screen">
-      {/* Logo section */}
-      <div className="mb-12 text-center animate-fade-in">
-        <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-brand-600 to-brand-400 flex items-center justify-center mx-auto mb-4 glow-brand">
-          <Lock className="w-7 h-7 text-white" />
+    <div className="flex min-h-screen w-screen bg-gray-50 lg:bg-white">
+      {/* Left Panel - Branding (Desktop only) */}
+      <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 flex-col items-center justify-center px-8 py-12">
+        <div className="text-center">
+          <div className="mb-6 flex justify-center">
+            <div className="rounded-2xl bg-white/20 p-4 backdrop-blur-sm">
+              <Lock className="w-12 h-12 text-white" />
+            </div>
+          </div>
+          <h1 className="text-5xl font-bold text-white mb-4">NeoATM</h1>
+          <p className="text-blue-100 text-lg mb-8 max-w-xs">
+            Secure banking at your fingertips
+          </p>
+          <div className="space-y-4 text-sm text-blue-50">
+            <div className="flex items-center gap-3 justify-center">
+              <div className="w-5 h-5 rounded-full bg-white/30"></div>
+              <span>24/7 Access</span>
+            </div>
+            <div className="flex items-center gap-3 justify-center">
+              <div className="w-5 h-5 rounded-full bg-white/30"></div>
+              <span>Bank-Grade Security</span>
+            </div>
+            <div className="flex items-center gap-3 justify-center">
+              <div className="w-5 h-5 rounded-full bg-white/30"></div>
+              <span>Fast Transactions</span>
+            </div>
+          </div>
         </div>
-        <h1 className="text-3xl font-bold text-text-primary tracking-tight mb-2">
-          Welcome back
-        </h1>
-        <p className="text-text-secondary text-sm">
-          Insert your card details to continue
-        </p>
       </div>
 
-      {/* Login card */}
-      <div className="w-full max-w-sm glass-card p-8 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-        {errorMessage && (
-          <ErrorBanner
-            message={errorMessage}
-            errors={errorList}
-            onDismiss={!isBlocked ? () => setErrorMessage(null) : undefined}
-          />
-        )}
+      {/* Right Panel / Mobile - Login Form */}
+      <div className="flex w-full lg:w-1/2 flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12">
+        <div className="w-full max-w-sm">
+          {/* Header */}
+          <div className="mb-8 text-center">
+            <div className="mb-4 flex justify-center lg:hidden">
+              <div className="rounded-2xl bg-blue-600 p-3">
+                <Lock className="w-8 h-8 text-white" />
+              </div>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+              Sign In
+            </h2>
+            <p className="text-gray-600 text-sm">
+              Enter your card details to access your account
+            </p>
+          </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Card Number Field */}
-          <div className="space-y-2">
-            <label
-              htmlFor="cardNumber"
-              className="text-xs text-text-secondary uppercase tracking-widest font-semibold block"
-            >
-              Card Number
-            </label>
-            <div className="relative">
-              <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Card Number Input */}
+            <div>
+              <label
+                htmlFor="cardNumber"
+                className="block text-sm font-semibold text-gray-900 mb-2"
+              >
+                Card Number
+              </label>
               <input
-                ref={cardInputRef}
                 id="cardNumber"
                 type="text"
                 inputMode="numeric"
+                value={cardNumber}
+                onChange={handleCardChange}
                 placeholder="0000-0000-0000-0000"
-                value={cardDisplay}
-                onChange={handleCardNumberChange}
-                disabled={loading}
-                className="w-full pl-12 pr-4 py-3 rounded-xl bg-navy-800/50 border border-navy-700/60 text-text-primary font-mono text-base tracking-wider placeholder:text-text-muted/40 focus:border-brand-500/40 focus:ring-2 focus:ring-brand-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                autoComplete="cc-number"
+                className="w-full px-4 py-3 text-lg font-mono tracking-widest border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all bg-white text-gray-900 placeholder:text-gray-400"
               />
-            </div>
-            {errors.cardNumber && (
-              <p className="text-danger-400 text-xs mt-1 font-medium">
-                {errors.cardNumber.message}
+              <p className="mt-1 text-xs text-gray-500">
+                Enter the 16 digits on your card
               </p>
-            )}
-          </div>
+            </div>
 
-          {/* PIN Boxes Field */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-xs text-text-secondary uppercase tracking-widest font-semibold block">
+            {/* PIN Input */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
                 PIN
               </label>
-              <button
-                type="button"
-                onClick={() => setShowPin(!showPin)}
-                className="text-xs text-text-secondary hover:text-text-primary transition-colors focus-ring flex items-center gap-1"
-                tabIndex={0}
-                aria-label={showPin ? 'Hide PIN' : 'Show PIN'}
-              >
-                {showPin ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-              </button>
-            </div>
-
-            {/* PIN Box Display */}
-            <div className="flex gap-3 justify-center">
-              {[0, 1, 2, 3].map((index) => (
-                <div
-                  key={index}
-                  className={`w-14 h-14 rounded-xl flex items-center justify-center font-mono text-2xl font-bold transition-all duration-200 ${
-                    pinError
-                      ? 'bg-danger-500/15 border-2 border-danger-400/60 text-danger-400'
-                      : index < pinValue.length
-                      ? 'bg-brand-500/15 border-2 border-brand-500/60 text-brand-400'
-                      : 'bg-navy-800/50 border border-navy-700/60 text-text-muted'
-                  }`}
-                >
-                  {pinValue[index] ? (showPin ? pinValue[index] : '●') : ''}
-                </div>
-              ))}
-            </div>
-
-            {/* Hidden PIN Input */}
-            <input
-              type="text"
-              inputMode="numeric"
-              maxLength={4}
-              placeholder=""
-              {...register('pin')}
-              onChange={handlePinChange}
-              ref={pinInputRef}
-              disabled={loading}
-              className="absolute opacity-0 w-0 h-0 pointer-events-none"
-              autoComplete="off"
-            />
-
-            {errors.pin && (
-              <p className="text-danger-400 text-xs mt-1 font-medium text-center">
-                {errors.pin.message}
+              <div className="flex gap-3">
+                {pin.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={(el) => {
+                      pinRefs.current[index] = el;
+                    }}
+                    type="password"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handlePinChange(index, e)}
+                    onKeyDown={(e) => handlePinKeyDown(index, e)}
+                    className="flex-1 w-12 h-14 sm:h-16 text-3xl font-bold text-center border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all bg-white text-gray-900"
+                  />
+                ))}
+              </div>
+              <p className="mt-1 text-xs text-gray-500">
+                Enter your 4-digit PIN
               </p>
-            )}
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            id="login-button"
-            disabled={loading}
-            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-semibold text-sm tracking-wide transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus-ring"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Authenticating...</span>
-              </>
-            ) : (
-              <>
-                <Lock className="w-4 h-4" />
-                <span>Sign In</span>
-              </>
-            )}
-          </button>
-        </form>
-
-        {/* Failed attempts indicator */}
-        {failedAttempts > 0 && (
-          <div className="mt-6 pt-6 border-t border-navy-700/40 text-center">
-            <p className="text-xs text-text-secondary mb-3">
-              Security Level:{' '}
-              <span className={`font-semibold ${failedAttempts >= 3 ? 'text-danger-400' : failedAttempts >= 2 ? 'text-amber-400' : 'text-text-secondary'}`}>
-                {failedAttempts}/3
-              </span>
-            </p>
-            <div className="flex gap-1.5 justify-center">
-              {[0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  className={`h-1.5 flex-1 rounded-full transition-colors ${
-                    i < failedAttempts ? 'bg-danger-500/70' : 'bg-navy-700/40'
-                  }`}
-                />
-              ))}
             </div>
-          </div>
-        )}
-      </div>
 
-      {/* Test credentials */}
-      <div className="mt-8 text-center text-xs text-text-muted max-w-sm animate-fade-in" style={{ animationDelay: '0.2s' }}>
-        <p className="mb-2 font-medium">Demo Credentials</p>
-        <p>Card: <span className="font-mono text-text-secondary">4532-0151-1283-0366</span></p>
-        <p>PIN: <span className="font-mono text-text-secondary">1234</span></p>
+            {/* Error Message */}
+            {error && (
+              <div className="flex items-center gap-3 p-3 bg-red-50 border-2 border-red-200 rounded-lg">
+                <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+                <p className="text-sm font-medium text-red-700">
+                  Invalid card number or PIN. Please try again.
+                </p>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={!isFormComplete}
+              className="w-full py-3 px-4 font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500 rounded-lg transition-colors duration-200 mt-8"
+            >
+              Sign In
+            </button>
+
+            {/* Demo Credentials */}
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3 text-center">
+                Demo Accounts
+              </p>
+              <div className="space-y-2">
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-xs text-gray-600 font-mono">
+                    <span className="font-semibold">Card:</span> 4532 0151 1283 0366
+                  </p>
+                  <p className="text-xs text-gray-600 font-mono">
+                    <span className="font-semibold">PIN:</span> 1234
+                  </p>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-xs text-gray-600 font-mono">
+                    <span className="font-semibold">Card:</span> 5425 2334 3010 9903
+                  </p>
+                  <p className="text-xs text-gray-600 font-mono">
+                    <span className="font-semibold">PIN:</span> 5678
+                  </p>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          {/* Footer Links */}
+          <div className="mt-8 text-center">
+            <p className="text-xs text-gray-600">
+              <a href="#" className="text-blue-600 hover:underline">
+                Need help?
+              </a>
+              {' • '}
+              <a href="#" className="text-blue-600 hover:underline">
+                Security Info
+              </a>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
