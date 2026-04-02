@@ -1,4 +1,4 @@
-# ATM API - Clean Architecture Solution
+# ATM Banking System
 
 > A **production-ready** full-stack ATM Banking System with ASP.NET Core 9 backend and React 19 frontend, following Clean Architecture principles.
 
