@@ -1,16 +1,9 @@
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { AlertTriangle } from 'lucide-react';
-import NavBar from './NavBar';
 
 export default function Layout() {
-  const { isAuthenticated, customerName, cardNumber, logout, cardBlocked } = useAuth();
-  const navigate = useNavigate();
-
-  function handleLogout() {
-    logout();
-    navigate('/login');
-  }
+  const { cardBlocked } = useAuth();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -20,15 +13,6 @@ export default function Layout() {
           <AlertTriangle className="w-4 h-4 inline-block mr-2" />
           Your card has been blocked. Please contact your bank.
         </div>
-      )}
-
-      {/* Top nav bar */}
-      {isAuthenticated && (
-        <NavBar
-          customerName={customerName}
-          cardNumber={cardNumber}
-          onLogout={handleLogout}
-        />
       )}
 
       {/* Main content */}
