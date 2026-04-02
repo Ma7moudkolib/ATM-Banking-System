@@ -22,7 +22,7 @@ export default function TransactionCard({ transaction }: TransactionCardProps) {
     : null;
 
   return (
-    <div className="glass-card-light px-4 py-3.5 hover:bg-navy-800/50 transition-all duration-150 group border border-navy-700/40 hover:border-navy-600/50 rounded-xl">
+    <div className="glass-card-light px-4 py-3.5 hover:bg-bg-input transition-all duration-150 group border border-border hover:border-brand-600/30 rounded-xl">
       <div className="flex items-center gap-3.5">
         {/* Icon circle */}
         <div
