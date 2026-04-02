@@ -1,40 +1,54 @@
 # ATM API - Clean Architecture Solution
 
-A production-ready monolithic ATM API built with ASP.NET Core 9 following Clean Architecture principles.
+> A **production-ready** full-stack ATM Banking System with ASP.NET Core 9 backend and React 19 frontend, following Clean Architecture principles.
+
+![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg)
+![License](https://img.shields.io/badge/License-Educational-green.svg)
+![Status](https://img.shields.io/badge/Status-Active-brightgreen.svg)
 
 ## 🏗️ Architecture Overview
 
-The solution is organized into four distinct layers following Clean Architecture:
+The solution is organized into **frontend** and **backend** layers following Clean Architecture principles:
 
 ```
 ATM-Banking-System/
-├── backend/
-│   ├── ATM-Banking-System.sln  # Solution file
-│   ├── ATM.Domain/             # Core business logic (no dependencies)
-│   │   ├── Entities/           # Domain entities
-│   │   ├── ValueObjects/       # Value objects (Money, CardNumber, Pin)
-│   │   ├── Enums/             # Domain enums
-│   │   └── Exceptions/        # Domain exceptions
-│   │
-│   ├── ATM.Application/        # Application services & interfaces
-│   │   ├── DTOs/              # Data Transfer Objects
-│   │   ├── Interfaces/        # Service & repository interfaces
-│   │   └── Services/          # Application services
-│   │
-│   ├── ATM.Infrastructure/     # Data access & external concerns
-│   │   ├── Context/           # EF Core DbContext
-│   │   ├── Repositories/      # Repository implementations
-│   │   └── UnitOfWork.cs      # Transaction management
-│   │
-│   ├── ATM.API/               # Web API layer
-│   │   ├── Controllers/       # API endpoints
-│   │   ├── Middleware/        # Exception handling
-│   │   ├── Validators/        # Request validation
-│   │   └── Program.cs         # Application startup
-│   │
-│   └── ATM.Tests/             # Unit tests
-│       ├── Services/          # Service unit tests
-│       └── ATM.Tests.csproj   # Test project
+├── frontend/                    # React 19 + TypeScript UI Layer
+│   ├── src/
+│   │   ├── pages/              # ATM Pages (Login, Dashboard, Withdraw, Deposit, History)
+│   │   ├── components/         # Reusable Components
+│   │   ├── api/               # Axios API Client
+│   │   ├── context/           # React Context (Auth, Session)
+│   │   ├── hooks/             # Custom Hooks
+│   │   └── types/             # TypeScript Types
+│   └── package.json           # Dependencies (React, Tailwind, React Router)
+│
+└── backend/
+    ├── ATM-Banking-System.sln  # Solution file
+    ├── ATM.Domain/             # Core business logic (no dependencies)
+    │   ├── Entities/           # Domain entities
+    │   ├── ValueObjects/       # Value objects (Money, CardNumber, Pin)
+    │   ├── Enums/             # Domain enums
+    │   └── Exceptions/        # Domain exceptions
+    │
+    ├── ATM.Application/        # Application services & interfaces
+    │   ├── DTOs/              # Data Transfer Objects
+    │   ├── Interfaces/        # Service & repository interfaces
+    │   └── Services/          # Application services
+    │
+    ├── ATM.Infrastructure/     # Data access & external concerns
+    │   ├── Context/           # EF Core DbContext
+    │   ├── Repositories/      # Repository implementations
+    │   └── UnitOfWork.cs      # Transaction management
+    │
+    ├── ATM.API/               # Web API layer
+    │   ├── Controllers/       # API endpoints
+    │   ├── Middleware/        # Exception handling
+    │   ├── Validators/        # Request validation
+    │   └── Program.cs         # Application startup
+    │
+    └── ATM.Tests/             # Unit tests
+        ├── Services/          # Service unit tests
+        └── ATM.Tests.csproj   # Test project
 ```
 
 ## 🎯 Key Features
@@ -67,11 +81,48 @@ ATM-Banking-System/
 - ✅ **Code Coverage** tracking with Coverlet
 - ✅ **Modular Project Structure** for scalability
 
+### Frontend Features
+- ✅ **Responsive Design** with Tailwind CSS
+- ✅ **Modern React 19** with TypeScript
+- ✅ **Client-side Routing** with React Router
+- ✅ **Form Validation** with React Hook Form & Zod
+- ✅ **Session Management** with Context API
+- ✅ **API Integration** with Axios
+- ✅ **Beautiful UI Components** with Lucide Icons
+- ✅ **Dark Mode Ready** Styling
+- ✅ **Type-Safe** Development
+
 ## 📦 Prerequisites
 
+### Backend
 - .NET 9 SDK
 - SQL Server 
 - Visual Studio 2022 or VS Code
+
+### Frontend
+- Node.js 18+ and npm 9+
+- Modern web browser
+
+### General
+- Git (for cloning)
+
+## ⚡ Quick Start
+
+### Run Everything + Docker:
+```bash
+# Clone the repository
+git clone https://github.com/Ma7moudkolib/ATM-Banking-System.git
+cd ATM-Banking-System
+
+# Backend
+cd backend && dotnet run
+
+# Frontend (in new terminal)
+cd frontend && npm install && npm run dev
+```
+
+Backend: https://localhost:7001
+Frontend: http://localhost:5173
 
 ## 🚀 Getting Started
 
@@ -180,6 +231,59 @@ dotnet test ATM.Tests/ATM.Tests.csproj /p:CollectCoverage=true
 - ✅ AuthenticationService Tests
 - ✅ TransactionService Tests
 - ✅ AuditService Tests
+
+## 🎨 Frontend Getting Started
+
+### 1. Install Dependencies
+
+```bash
+# Navigate to frontend directory
+cd frontend
+
+# Install packages
+npm install
+```
+
+### 2. Configure API Endpoint
+
+Update `frontend/.env.local` with your backend URL:
+
+```env
+VITE_API_BASE_URL=https://localhost:7001/api/v1
+```
+
+### 3. Run Development Server
+
+```bash
+# Start the dev server
+npm run dev
+```
+
+The frontend will be available at:
+- `http://localhost:5173` (default Vite port)
+
+### 4. Build for Production
+
+```bash
+# Build the project
+npm run build
+
+# Preview the production build
+npm run preview
+```
+
+### 5. Frontend Pages
+
+The frontend includes the following pages:
+
+| Page | Route | Description |
+|------|-------|-------------|
+| **LoginPage** | `/` | Card authentication & PIN entry |
+| **DashboardPage** | `/dashboard` | Account overview & balance |
+| **WithdrawPage** | `/withdraw` | Cash withdrawal interface |
+| **DepositPage** | `/deposit` | Cash deposit interface |
+| **HistoryPage** | `/history` | Transaction history & details |
+| **AccountPage** | `/account` | Account details & settings |
 
 ## 📝 Seeded Test Data
 
@@ -549,22 +653,49 @@ backend/
 
 ## � Technology Stack
 
+### Backend
 - **Framework**: ASP.NET Core 9
+- **Language**: C# 13
 - **Database**: SQL Server / LocalDB
 - **ORM**: Entity Framework Core 9
-- **Validation**: FluentValidation
-- **Testing**: xUnit, Moq
+- **Validation**: FluentValidation v12
+- **Testing**: xUnit v2.9.2 with Moq v4.20.70
+- **Code Coverage**: Coverlet v6.0.2
 - **Security**: BCrypt.NET
-- **Language**: C# 13, .NET 9
+- **API Versioning**: Microsoft.AspNetCore.Mvc.Versioning
+
+### Frontend
+- **Framework**: React 19
+- **Language**: TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS 4
+- **Routing**: React Router v7
+- **Form Management**: React Hook Form v7 + Zod
+- **HTTP Client**: Axios v1.14
+- **Icons**: Lucide React v1.7
+- **Type Validation**: Zod v4
 
 ## 📚 Additional Resources
 
+### Architecture & Patterns
 - [Clean Architecture by Robert C. Martin](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+- [Clean Code by Robert C. Martin](https://www.oreilly.com/library/view/clean-code-a/9780136083238/)
+
+### Backend Documentation
 - [ASP.NET Core Documentation](https://docs.microsoft.com/en-us/aspnet/core/)
 - [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/)
 - [FluentValidation](https://docs.fluentvalidation.net/)
 - [xUnit](https://xunit.net/)
 - [Moq](https://github.com/moq)
+
+### Frontend Documentation
+- [React Documentation](https://react.dev/)
+- [TypeScript Documentation](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [React Router](https://reactrouter.com/)
+- [React Hook Form](https://react-hook-form.com/)
+- [Zod](https://zod.dev/)
+- [Vite](https://vitejs.dev/)
 
 ## 📄 License
 
