@@ -66,31 +66,26 @@ export default function AmountPad({
         <h3 className="text-xs text-text-secondary/70 uppercase tracking-widest font-semibold mb-3">
           Quick Amounts
         </h3>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2.5">
           {quickAmounts.map((amount) => (
             <button
               key={amount}
               type="button"
               onClick={() => handleQuickSelect(amount)}
-              className={`relative group p-4 rounded-xl text-center font-semibold text-sm transition-all duration-200 border ${
+              className={`relative group py-3.5 px-2 rounded-xl text-center font-bold text-sm transition-all duration-150 border ${
                 selectedAmount === amount
-                  ? 'bg-brand-500/20 border-brand-500/60 text-brand-400'
-                  : 'bg-navy-800/40 border-navy-700/60 text-text-primary hover:border-brand-500/40 hover:bg-navy-800/60'
+                  ? 'bg-brand-500/20 border-brand-500/50 text-brand-400 scale-[0.97]'
+                  : 'bg-navy-800/40 border-navy-700/50 text-text-primary hover:border-brand-500/30 hover:bg-navy-800/70 hover:text-brand-300'
               }`}
             >
               {/* Amount text */}
-              <span className="relative z-10 font-mono">${(amount / 100).toFixed(2)}</span>
+              <span className="relative z-10 font-mono tabular-nums text-sm">${amount}</span>
 
               {/* Checkmark on selected */}
               {selectedAmount === amount && (
-                <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-brand-500/40 flex items-center justify-center">
-                  <Check className="w-3 h-3 text-brand-400" />
+                <div className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-brand-500/50 flex items-center justify-center">
+                  <Check className="w-2.5 h-2.5 text-brand-300" strokeWidth={3} />
                 </div>
-              )}
-
-              {/* Ripple effect on selected */}
-              {selectedAmount === amount && (
-                <div className="absolute inset-0 rounded-xl bg-brand-500/5 animate-pulse" />
               )}
             </button>
           ))}
@@ -98,15 +93,12 @@ export default function AmountPad({
       </div>
 
       {/* Divider */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-navy-700/40" />
-        </div>
-        <div className="relative flex justify-center">
-          <span className="bg-navy-900 px-3 text-xs text-text-muted/70">
-            OR CUSTOM AMOUNT
-          </span>
-        </div>
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-px bg-navy-700/40" />
+        <span className="text-xs text-text-muted/50 uppercase tracking-widest font-medium">
+          or enter custom
+        </span>
+        <div className="flex-1 h-px bg-navy-700/40" />
       </div>
 
       {/* Custom amount input */}
