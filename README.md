@@ -697,7 +697,149 @@ backend/
 - [Zod](https://zod.dev/)
 - [Vite](https://vitejs.dev/)
 
-## 📄 License
+## � Docker & Container Deployment
+
+This project includes complete Docker configuration for containerized deployment of all services:
+
+### Prerequisites
+- Docker Engine 20.10+
+- Docker Compose 2.0+
+
+### Services
+
+The monorepo contains three containerized services:
+
+| Service | Image | Port | Purpose |
+|---------|-------|------|---------|
+| **frontend** | node:20-alpine → nginx:alpine | 3000 | React + Vite UI (reverse proxy to backend) |
+| **backend** | dotnet/sdk:9.0 → dotnet/aspnet:9.0 | 8080 | ASP.NET Core 9 Web API |
+| **db** | mssql/server:2022-latest | 1433 | SQL Server Express 2022 |
+
+### Docker Files
+
+- **Dockerfile** - Multi-stage backend build (root)
+- **frontend/Dockerfile** - Multi-stage frontend build with nginx
+- **frontend/nginx.conf** - Nginx configuration with API proxy and SPA routing
+- **docker-compose.yml** - Production-ready orchestration
+- **docker-compose.override.yml** - Development environment overrides
+- **.dockerignore** - Build context exclusions
+
+### Quick Start
+
+#### Development (with live reload)
+```bash
+docker compose up --build
+```
+
+Access:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8080
+- Swagger: http://localhost:8080/swagger/index.html
+- SQL Server: localhost:1433 (User: sa / Password: YourStrong@Password123)
+
+#### Production Build
+```bash
+docker compose -f docker-compose.yml up --build -d
+```
+
+#### Stop & Cleanup
+```bash
+docker compose down -v
+```
+
+### Configuration
+
+**Development Overrides** (`docker-compose.override.yml`):
+- SQL Server password: `YourStrong@Password123`
+- Backend environment: `Development` (detailed errors, Swagger UI)
+- Frontend: File watching enabled with polling
+
+**Production** (`docker-compose.yml`):
+- Uses environment variable: `${SA_PASSWORD}`
+- Backend environment: `Production`
+- Database health checks: Backend waits for DB to be healthy
+- Volumes: SQL Server data persisted in `sqldata` volume
+
+### Environment Variables
+
+Create a `.env` file in the root directory for production:
+
+```env
+SA_PASSWORD=YourStrong@Password123
+ASPNETCORE_URLS=http://+:8080
+ASPNETCORE_ENVIRONMENT=Production
+```
+
+### Database Initialization
+
+The backend automatically runs Entity Framework migrations on startup via `Program.cs`:
+
+```csharp
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AtmDbContext>();
+    dbContext.Database.Migrate();
+}
+```
+
+Your database is automatically created and migrations are applied when the backend container starts.
+
+### Frontend Proxy Configuration
+
+The frontend nginx container proxies all `/api/` requests to the backend API:
+
+```nginx
+location /api/ {
+    proxy_pass http://backend:8080;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+}
+```
+
+This eliminates CORS issues and allows the built JS bundle to use relative API calls.
+
+### Multi-Stage Build Benefits
+
+**Backend** (`Dockerfile`):
+- Stage 1 (SDK 9.0): Restores dependencies, builds, and publishes
+- Stage 2 (ASP.NET 9.0): Contains only the runtime—reduces image size by ~70%
+- Layer caching: `.csproj` files copied first for faster rebuilds
+
+**Frontend** (`frontend/Dockerfile`):
+- Stage 1 (node:20-alpine): Installs dependencies and builds Vite app
+- Stage 2 (nginx:alpine): Serves optimized production build—reduces image size by ~95%
+- Build-time environment variables: `VITE_API_BASE_URL` for API configuration
+
+### Health Checks
+
+SQL Server includes a health check that verifies connectivity:
+
+```yaml
+healthcheck:
+  test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "${SA_PASSWORD}" -Q "SELECT 1"
+  interval: 10s
+  timeout: 5s
+  retries: 10
+  start_period: 30s
+```
+
+The backend waits for the database to be healthy before starting:
+
+```yaml
+depends_on:
+  db:
+    condition: service_healthy
+```
+
+### Image Size Comparison
+
+| Service | Final Image Size |
+|---------|------------------|
+| Frontend | ~20 MB (nginx with built app) |
+| Backend | ~180 MB (ASP.NET runtime with dependencies) |
+| Database | ~330 MB (SQL Server Express) |
+
+## �📄 License
 
 This project is provided as a reference implementation for educational purposes.
 
@@ -705,4 +847,4 @@ This project is provided as a reference implementation for educational purposes.
 
 **Built with ❤️ following Clean Architecture principles for production-ready FinTech applications.**
 
-**Last Updated**: April 2, 2026 | **Version**: 1.0.0
+**Last Updated**: April 3, 2026 | **Version**: 1.0.0
