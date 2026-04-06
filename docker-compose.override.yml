@@ -1,0 +1,29 @@
+services:
+  db:
+    # Override: Keep port exposed for local SQL Server management tools
+    ports:
+      - "1433:1433"
+    environment:
+      # Development SQL Server password
+      SA_PASSWORD: "YourStrong@Password123"
+
+  backend:
+    # Override: Use Development environment for detailed error messages and diagnostics
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Database__Server: "db"
+      Database__Name: "ATMBankingDB"
+      Database__User: "sa"
+      Database__Password: "YourStrong@Password123"
+      Database__TrustServerCertificate: "true"
+    # Optional: Mount source code for hot reload during development
+    # Uncomment the following lines if you want to enable live reload
+    # volumes:
+    #   - ./backend:/src
+    #   - /src/bin
+    #   - /src/obj
+
+  frontend:
+    # Override: Enable file watching with polling for development
+    environment:
+      - CHOKIDAR_USEPOLLING=true
