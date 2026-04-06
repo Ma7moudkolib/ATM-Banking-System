@@ -1,4 +1,5 @@
 ﻿using Backend.ATM.Domain.Entities;
+using Backend.ATM.Infrastructure.Seeding;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.ATM.Infrastructure.Context
@@ -30,6 +31,8 @@ namespace Backend.ATM.Infrastructure.Context
                         .HasMaxLength(19)
                         .IsRequired()
                         .HasColumnName("CardNumber");
+
+                    cardNumber.HasIndex(cn => cn.Value).IsUnique();
                 });
 
                 entity.OwnsOne(e => e.Pin, pin =>
@@ -44,13 +47,16 @@ namespace Backend.ATM.Infrastructure.Context
                 entity.Property(e => e.CreatedAt).IsRequired();
                 entity.Property(e => e.UpdatedAt);
 
-                entity.HasIndex(e => e.CardNumber.Value).IsUnique();
                 entity.HasIndex(e => e.AccountId);
 
                 entity.HasOne(e => e.Account)
                     .WithMany(a => a.Cards)
                     .HasForeignKey(e => e.AccountId)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasData(CardSeedData.GetSeeds());
+                entity.OwnsOne(e => e.CardNumber).HasData(CardSeedData.GetCardNumberSeeds());
+                entity.OwnsOne(e => e.Pin).HasData(CardSeedData.GetPinSeeds());
             });
 
             // Account Configuration
@@ -82,6 +88,8 @@ namespace Backend.ATM.Infrastructure.Context
                     .IsRequired();
 
                 entity.HasIndex(e => e.AccountNumber).IsUnique();
+
+                entity.HasData(AccountSeedData.GetSeeds());
             });
 
             // Transaction Configuration
@@ -132,6 +140,8 @@ namespace Backend.ATM.Infrastructure.Context
                     .WithMany()
                     .HasForeignKey(e => e.AtmMachineId)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasData(TransactionSeed.GetSeedData());
             });
 
             // LedgerEntry Configuration
@@ -169,6 +179,8 @@ namespace Backend.ATM.Infrastructure.Context
                     .WithMany()
                     .HasForeignKey(e => e.AccountId)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasData(LedgerEntrySeed.GetSeedData());
             });
 
             // AtmMachine Configuration
@@ -196,6 +208,8 @@ namespace Backend.ATM.Infrastructure.Context
                     .IsRequired();
 
                 entity.HasIndex(e => e.MachineCode).IsUnique();
+
+                entity.HasData(AtmMachineSeedData.GetSeedData());
             });
 
             // AuditLog Configuration
@@ -223,6 +237,8 @@ namespace Backend.ATM.Infrastructure.Context
 
                 entity.HasIndex(e => e.EntityId);
                 entity.HasIndex(e => e.Timestamp);
+
+                entity.HasData(AuditLogSeedData.GetSeedData());
             });
         }
     }
