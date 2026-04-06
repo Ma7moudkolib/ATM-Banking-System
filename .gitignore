@@ -361,4 +361,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/src/ATM.API/appsettings.json
+
+# Environment Configuration
+# DO NOT commit actual environment files with secrets
+.env
+.env.local
+.env.*
