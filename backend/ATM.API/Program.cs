@@ -11,6 +11,12 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load environment-specific configuration
+var env = builder.Environment.EnvironmentName;
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{env}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
 
 builder.Services.AddControllers();
 builder.Services.AddApiVersioning(options =>
@@ -27,10 +33,18 @@ builder.Services.AddVersionedApiExplorer(options =>
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
+// Build connection string from configuration
+var dbServer = builder.Configuration["Database:Server"] ?? "localhost";
+var dbName = builder.Configuration["Database:Name"] ?? "ATMBankingDB";
+var dbUser = builder.Configuration["Database:User"] ?? "sa";
+var dbPassword = builder.Configuration["Database:Password"] ?? "YourStrong@Password123";
+var trustServerCert = builder.Configuration.GetValue<bool>("Database:TrustServerCertificate");
+
+var connectionString = $"Server={dbServer};Database={dbName};User Id={dbUser};Password={dbPassword};Trusted_Connection=false;TrustServerCertificate={trustServerCert};";
 
 builder.Services.AddDbContext<AtmDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
+        connectionString,
         b => b.MigrationsAssembly("Backend.ATM.Infrastructure")
     )
 );
