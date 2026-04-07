@@ -1,3 +1,10 @@
+version: '3.8'
+
+# ─────────────────────────────────────────────
+# Base / Production compose file
+# Use with: docker compose up
+# ─────────────────────────────────────────────
+
 services:
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -10,7 +17,7 @@ services:
     volumes:
       - sqldata:/var/opt/mssql
     healthcheck:
-      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "${SA_PASSWORD}" -Q "SELECT 1" || exit 1
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${SA_PASSWORD}" -Q "SELECT 1" || exit 1
       interval: 10s
       timeout: 5s
       retries: 10
@@ -18,27 +25,28 @@ services:
     networks:
       - atm-network
 
-  backend:
+  atm-api:
     build:
       context: .
       dockerfile: Dockerfile
+      target: production          # ← explicit production stage
     container_name: atm-api
     ports:
       - "8080:8080"
     environment:
+      ASPNETCORE_ENVIRONMENT: Production
       Database__Server: "db"
       Database__Name: "ATMBankingDB"
       Database__User: "sa"
       Database__Password: "${SA_PASSWORD}"
       Database__TrustServerCertificate: "true"
-      ASPNETCORE_ENVIRONMENT: Production
     depends_on:
-      db:
-        condition: service_healthy
+      - db
+#        condition: healthcheck
     networks:
       - atm-network
 
-  frontend:
+  atm-ui:
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -48,7 +56,7 @@ services:
     ports:
       - "3000:80"
     depends_on:
-      - backend
+      - atm-api
     networks:
       - atm-network
 

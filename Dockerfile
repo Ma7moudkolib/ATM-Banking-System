@@ -1,47 +1,73 @@
-# Stage 1: Build
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+# ─────────────────────────────────────────────
+# Stage 1: Restore dependencies (shared cache)
+# ─────────────────────────────────────────────
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS restore
 
 WORKDIR /src
 
-# Copy solution file
+# Copy solution + project files first for optimal layer caching
 COPY backend/*.sln ./
-
-# Copy project files for dependency caching
-COPY backend/ATM.Domain/ATM.Domain.csproj ./ATM.Domain/
+COPY backend/ATM.Domain/ATM.Domain.csproj          ./ATM.Domain/
 COPY backend/ATM.Application/ATM.Application.csproj ./ATM.Application/
 COPY backend/ATM.Infrastructure/ATM.Infrastructure.csproj ./ATM.Infrastructure/
-COPY backend/ATM.API/ATM.API.csproj ./ATM.API/
-COPY backend/ATM.Tests/ATM.Tests.csproj ./ATM.Tests/
+COPY backend/ATM.API/ATM.API.csproj                ./ATM.API/
+COPY backend/ATM.Tests/ATM.Tests.csproj            ./ATM.Tests/
 
-# Restore dependencies
 RUN dotnet restore *.sln
 
-# Copy remaining source code
+# Copy the rest of the source code
 COPY backend/ .
 
-# Build and publish the API
+
+# ─────────────────────────────────────────────
+# Stage 2: Build (Release artefacts)
+# ─────────────────────────────────────────────
+FROM restore AS build
+
 RUN dotnet publish ./ATM.API/ATM.API.csproj \
     -c Release \
     -o /app/publish \
     --no-restore
 
 
-# Stage 2: Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
+# ─────────────────────────────────────────────
+# Stage 3: Development
+#   • SDK image so `dotnet watch` is available
+#   • Source mounted at runtime via docker-compose
+#   • Hot-reload enabled out of the box
+# ─────────────────────────────────────────────
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS development
+
+WORKDIR /src
+
+# Pre-restore so the first `dotnet watch` run is fast
+COPY --from=restore /root/.nuget /root/.nuget
+COPY --from=restore /src .
+
+EXPOSE 8080
+
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENV DOTNET_USE_POLLING_FILE_WATCHER=true
+ENV DOTNET_WATCH_RESTART_ON_RUDE_EDIT=true
+
+ENTRYPOINT ["dotnet", "watch", "--project", "ATM.API/ATM.API.csproj", "run", "--no-launch-profile"]
+
+
+# ─────────────────────────────────────────────
+# Stage 4: Production
+#   • Minimal ASP.NET runtime image (no SDK)
+#   • Only published artefacts copied in
+# ─────────────────────────────────────────────
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS production
 
 WORKDIR /app
 
-# Copy published output from build stage
 COPY --from=build /app/publish .
 
-# Expose port 8080
 EXPOSE 8080
 
-# Set ASP.NET Core URLs
 ENV ASPNETCORE_URLS=http://+:8080
-
-# Set environment to Production by default
 ENV ASPNETCORE_ENVIRONMENT=Production
 
-# Run the application
 ENTRYPOINT ["dotnet", "ATM.API.dll"]

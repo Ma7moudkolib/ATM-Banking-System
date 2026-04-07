@@ -1,29 +1,45 @@
+version: '3.8'
+
+# ─────────────────────────────────────────────
+# Development overrides
+# Use with: docker compose -f docker-compose.yml -f docker-compose.override.yml up
+# (Docker Compose merges this file automatically when both are present)
+# ─────────────────────────────────────────────
+
 services:
   db:
-    # Override: Keep port exposed for local SQL Server management tools
     ports:
+      # Keep SQL Server port accessible from host for local management tools
       - "1433:1433"
     environment:
-      # Development SQL Server password
-      SA_PASSWORD: "YourStrong@Password123"
+      SA_PASSWORD: "YourStrong@Password123"   # dev-only password; never commit prod secrets
 
-  backend:
-    # Override: Use Development environment for detailed error messages and diagnostics
+  atm-api:
+    build:
+      target: development                      # ← switch to the development stage
+    container_name: atm-api-dev
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       Database__Server: "db"
       Database__Name: "ATMBankingDB"
       Database__User: "sa"
       Database__Password: "YourStrong@Password123"
+      Database__Port: "1433"
       Database__TrustServerCertificate: "true"
-    # Optional: Mount source code for hot reload during development
-    # Uncomment the following lines if you want to enable live reload
-    # volumes:
-    #   - ./backend:/src
-    #   - /src/bin
-    #   - /src/obj
+    volumes:
+      # Mount source code so dotnet watch picks up changes without rebuilding
+      - ./backend:/src
+      # Anonymous volumes prevent host's empty bin/obj from shadowing container's
+      - /src/ATM.API/bin
+      - /src/ATM.API/obj
+      - /src/ATM.Domain/bin
+      - /src/ATM.Domain/obj
+      - /src/ATM.Application/bin
+      - /src/ATM.Application/obj
+      - /src/ATM.Infrastructure/bin
+      - /src/ATM.Infrastructure/obj
 
-  frontend:
-    # Override: Enable file watching with polling for development
+  atm-ui:
     environment:
+      # Enable polling-based file watching (required on Windows/macOS Docker Desktop)
       - CHOKIDAR_USEPOLLING=true
