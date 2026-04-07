@@ -34,13 +34,14 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 // Build connection string from configuration
-var dbServer = builder.Configuration["Database:Server"] ?? "localhost";
+var dbServer = builder.Configuration["Database:Server"] ?? "db";
 var dbName = builder.Configuration["Database:Name"] ?? "ATMBankingDB";
 var dbUser = builder.Configuration["Database:User"] ?? "sa";
 var dbPassword = builder.Configuration["Database:Password"] ?? "YourStrong@Password123";
 var trustServerCert = builder.Configuration.GetValue<bool>("Database:TrustServerCertificate");
+var dbServerPort = builder.Configuration["Database:Port"] ?? "1433";
 
-var connectionString = $"Server={dbServer};Database={dbName};User Id={dbUser};Password={dbPassword};Trusted_Connection=false;TrustServerCertificate={trustServerCert};";
+var connectionString = $"Server={dbServer},{dbServerPort};Database={dbName};User Id={dbUser};Password={dbPassword};Trusted_Connection=false;TrustServerCertificate={trustServerCert};";
 
 builder.Services.AddDbContext<AtmDbContext>(options =>
     options.UseSqlServer(
