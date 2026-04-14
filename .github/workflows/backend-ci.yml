@@ -17,8 +17,8 @@ jobs:
       with:
         dotnet-version: 9.0.x
     - name: Restore dependencies
-      run: dotnet restore Backend/ATM-Banking-System.sln
+      run: dotnet restore backend/ATM-Banking-System.sln
     - name: Build
-      run: dotnet build Backend/ATM-Banking-System.sln --no-restore --configuration Release
+      run: dotnet build backend/ATM-Banking-System.sln --no-restore --configuration Release
     - name: Test
-      run: dotnet test Backend/ATM-Banking-System.sln --no-build --configuration Release --verbosity normal
+      run: dotnet test backend/ATM-Banking-System.sln --no-build --configuration Release --verbosity normal
