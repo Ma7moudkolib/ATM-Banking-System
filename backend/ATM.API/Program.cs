@@ -34,19 +34,10 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 // Build connection string from configuration
-var dbServer = builder.Configuration["Database:Server"] ?? "db";
-var dbName = builder.Configuration["Database:Name"] ?? "ATMBankingDB";
-var dbUser = builder.Configuration["Database:User"] ?? "sa";
-var dbPassword = builder.Configuration["Database:Password"] ?? "YourStrong@Password123";
-var trustServerCert = builder.Configuration.GetValue<bool>("Database:TrustServerCertificate");
-var dbServerPort = builder.Configuration["Database:Port"] ?? "1433";
-
-var connectionString = $"Server={dbServer},{dbServerPort};Database={dbName};User Id={dbUser};Password={dbPassword};Trusted_Connection=false;TrustServerCertificate={trustServerCert};";
-
 builder.Services.AddDbContext<AtmDbContext>(options =>
     options.UseSqlServer(
-        connectionString,
-        b => b.MigrationsAssembly("Backend.ATM.Infrastructure")
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+         b => b.MigrationsAssembly("Backend.ATM.Infrastructure")
     )
 );
 builder.Services.AddMemoryCache();
@@ -69,6 +60,15 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddCors(options =>
 {
+    options.AddPolicy("AllowLocalhostFrontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+    });
+    
     options.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyOrigin()
@@ -87,11 +87,15 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseCors("AllowLocalhostFrontend");
+}
+else
+{
+    // In production, use more restrictive CORS policy or specify your deployment domain
+    app.UseCors("AllowLocalhostFrontend");
 }
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
-
-app.UseCors("AllowAll");
 
 app.UseAuthorization();
 
