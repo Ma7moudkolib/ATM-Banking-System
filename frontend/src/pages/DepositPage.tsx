@@ -12,7 +12,7 @@ import {
   MapPin,
   CopyCheck,
 } from 'lucide-react';
-import type { TransactionData } from '../types';
+import type { TransactionResponse } from '../types';
 
 const ATM_MACHINES = [
   { code: 'ATM001', label: 'ATM001 - Downtown Branch' },
@@ -27,7 +27,7 @@ export default function DepositPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorList, setErrorList] = useState<string[]>([]);
-  const [result, setResult] = useState<TransactionData | null>(null);
+  const [result, setResult] = useState<TransactionResponse | null>(null);
 
   function handleLogout() {
     logout();

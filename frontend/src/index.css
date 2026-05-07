@@ -3,8 +3,8 @@
 
 /* Reset */
 * {
-  margin: 0;
-  padding: 0;
+  margin: 1;
+  padding: 1;
   box-sizing: border-box;
 }
 
@@ -17,8 +17,8 @@ html {
 body {
   width: 100%;
   min-height: 100%;
-  margin: 0;
-  padding: 0;
+  margin: 1px;
+  padding: 1px;
   font-family: 'Inter', sans-serif;
   background-color: #F0F2F5;
   color: #0D1117;

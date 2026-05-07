@@ -1,6 +1,6 @@
 import { createContext, useContext, useReducer, useCallback, type ReactNode } from 'react';
 import { maskCardNumber } from '../utils/luhn';
-import type { LoginData } from '../types';
+import type { LoginResponse } from '../types';
 
 interface AuthState {
   sessionId: string;
@@ -12,12 +12,12 @@ interface AuthState {
 }
 
 type AuthAction =
-  | { type: 'LOGIN'; payload: LoginData }
+  | { type: 'LOGIN'; payload: LoginResponse }
   | { type: 'LOGOUT' }
   | { type: 'CARD_BLOCKED' };
 
 interface AuthContextType extends AuthState {
-  login: (data: LoginData) => void;
+  login: (data: LoginResponse) => void;
   logout: () => void;
   setCardBlocked: () => void;
 }
@@ -71,7 +71,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  const login = useCallback((data: LoginData) => {
+  const login = useCallback((data: LoginResponse) => {
     dispatch({ type: 'LOGIN', payload: data });
   }, []);
 

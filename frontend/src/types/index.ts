@@ -13,7 +13,7 @@ export interface LoginRequest {
   pin: string;
 }
 
-export interface LoginData {
+export interface LoginResponse {
   sessionId: string;
   cardNumber: string;
   accountNumber: string;
@@ -21,7 +21,7 @@ export interface LoginData {
   expiresAt: string;
 }
 
-export interface BalanceData {
+export interface AccountBalance {
   accountNumber: string;
   availableBalance: number;
   currency: string;
@@ -44,7 +44,7 @@ export interface TransactionRequest {
   atmMachineCode: string;
 }
 
-export interface TransactionData {
+export interface TransactionResponse {
   transactionReference: string;
   type: string;
   amount: number;
@@ -63,8 +63,8 @@ export interface HistoryRequest {
   pageSize: number;
 }
 
-export interface HistoryData {
-  transactions: TransactionData[];
+export interface TransactionHistoryResponse {
+  transactions: TransactionResponse[];
   totalCount: number;
   pageNumber: number;
   pageSize: number;

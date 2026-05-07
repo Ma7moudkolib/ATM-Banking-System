@@ -1,10 +1,10 @@
 import { useState, useCallback } from 'react';
 import { getTransactionHistoryApi } from '../api/endpoints';
 import { useAuth } from '../context/AuthContext';
-import type { TransactionData } from '../types';
+import type { TransactionResponse } from '../types';
 
 interface UseTransactionsReturn {
-  transactions: TransactionData[];
+  transactions: TransactionResponse[];
   totalPages: number;
   totalCount: number;
   currentPage: number;
@@ -20,7 +20,7 @@ interface UseTransactionsReturn {
 
 export function useTransactions(): UseTransactionsReturn {
   const { sessionId } = useAuth();
-  const [transactions, setTransactions] = useState<TransactionData[]>([]);
+  const [transactions, setTransactions] = useState<TransactionResponse[]>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);

@@ -1,73 +1,82 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, Lock, Loader2, Eye, EyeOff, CreditCard } from 'lucide-react';
+import { Lock, Loader2, Eye, EyeOff, CreditCard } from 'lucide-react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useAuth } from '../context/AuthContext';
 import { loginApi } from '../api/endpoints';
+import ErrorBanner from '../components/ErrorBanner';
+
+const loginSchema = z.object({
+  cardNumber: z.string().min(16, 'Card number must be exactly 16 digits').max(16),
+  pin: z.string().length(4, 'PIN must be exactly 4 digits'),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [cardNumber, setCardNumber] = useState('');
-  const [pin, setPin] = useState(['', '', '', '']);
   const [showPin, setShowPin] = useState(false);
-  const [error, setError] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [apiErrorList, setApiErrorList] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const pinRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const handleCardChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '');
-    if (value.length <= 16) {
-      const formatted = value.match(/.{1,4}/g)?.join('-') || value;
-      setCardNumber(formatted);
-      setError(false);
-    }
-  };
+  const {
+    control,
+    handleSubmit,
+    setError,
+    formState: { errors, isValid },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      cardNumber: '',
+      pin: '',
+    },
+    mode: 'onChange',
+  });
 
-  const handlePinChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    const digit = val.replace(/\D/g, '').slice(-1);
-
-    const newPin = [...pin];
-    newPin[index] = digit;
-    setPin(newPin);
-    setError(false);
-
-    if (digit && index < 3) {
-      pinRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handlePinKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Backspace' && !pin[index] && index > 0) {
-      pinRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const cardNumberDigits = cardNumber.replace(/\D/g, '');
-  const isFormComplete = cardNumberDigits.length === 16 && pin.every((d: string) => d.length === 1);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isFormComplete) return;
-
+  const onSubmit = async (data: LoginFormValues) => {
     setLoading(true);
-    setError(false);
-    
+    setApiError(null);
+    setApiErrorList([]);
+
     try {
-      const rawPin = pin.join('');
       const response = await loginApi({
-        cardNumber: cardNumberDigits,
-        pin: rawPin,
+        cardNumber: data.cardNumber,
+        pin: data.pin,
       });
 
       if (response.success && response.data) {
         login(response.data);
         navigate('/dashboard');
       } else {
-        setError(true);
+        setApiError(response.message || 'Login failed');
+        if (response.errors?.length) {
+          setApiErrorList(response.errors);
+        }
       }
-    } catch (err) {
-      setError(true);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setApiError(err.message);
+        const errWithList = err as Error & { errors?: string[] };
+        if (errWithList.errors?.length) {
+          setApiErrorList(errWithList.errors);
+          
+          // Map backend errors to form fields if possible
+          errWithList.errors.forEach(e => {
+            if (e.toLowerCase().includes('card')) {
+              setError('cardNumber', { type: 'server', message: e });
+            } else if (e.toLowerCase().includes('pin')) {
+              setError('pin', { type: 'server', message: e });
+            }
+          });
+        }
+      } else {
+        setApiError('Invalid card number or PIN. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -91,8 +100,18 @@ export default function LoginPage() {
 
         {/* Card */}
         <div className="bg-bg-card rounded-none sm:rounded-2xl p-6 sm:p-8 sm:shadow-cards animate-slide-up">
+          {apiError && (
+            <div className="mb-6">
+              <ErrorBanner
+                message={apiError}
+                errors={apiErrorList}
+                onDismiss={() => setApiError(null)}
+              />
+            </div>
+          )}
+
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Card Number Input */}
             <div>
               <label
@@ -101,18 +120,37 @@ export default function LoginPage() {
               >
                 Card number
               </label>
-              <div className="relative">
-                <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-hint" />
-                <input
-                  id="cardNumber"
-                  type="text"
-                  inputMode="numeric"
-                  value={cardNumber}
-                  onChange={handleCardChange}
-                  placeholder="0000-0000-0000-0000"
-                  className="w-full pl-12 pr-4 py-3 text-center font-mono text-lg tracking-widest border border-border rounded-xl focus:border-brand-primary focus:ring-2 focus:ring-brand-secondary bg-bg-input"
-                />
-              </div>
+              <Controller
+                name="cardNumber"
+                control={control}
+                render={({ field }) => {
+                  const displayValue = field.value.match(/.{1,4}/g)?.join('-') || field.value;
+                  return (
+                    <div className="relative">
+                      <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-hint" />
+                      <input
+                        id="cardNumber"
+                        type="text"
+                        inputMode="numeric"
+                        value={displayValue}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 16);
+                          field.onChange(val);
+                        }}
+                        placeholder="0000-0000-0000-0000"
+                        className={`w-full pl-12 pr-4 py-3 text-center font-mono text-lg tracking-widest border rounded-xl focus:ring-2 bg-bg-input ${
+                          errors.cardNumber
+                            ? 'border-danger focus:border-danger focus:ring-danger/20'
+                            : 'border-border focus:border-brand-primary focus:ring-brand-secondary'
+                        }`}
+                      />
+                    </div>
+                  );
+                }}
+              />
+              {errors.cardNumber && (
+                <p className="mt-2 text-xs text-danger">{errors.cardNumber.message}</p>
+              )}
             </div>
 
             {/* PIN Input */}
@@ -120,53 +158,69 @@ export default function LoginPage() {
               <label className="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">
                 PIN
               </label>
-              <div className="flex gap-3 justify-center">
-                {pin.map((digit, index) => (
-                  <input
-                    key={index}
-                    ref={(el) => {
-                      if (el) pinRefs.current[index] = el;
-                    }}
-                    type={showPin ? 'text' : 'password'}
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) => handlePinChange(index, e)}
-                    onKeyDown={(e) => handlePinKeyDown(index, e)}
-                    className="w-14 h-14 text-center text-2xl font-bold border border-border rounded-xl focus:border-brand-primary focus:ring-2 focus:ring-brand-secondary bg-bg-input"
-                  />
-                ))}
-                <button
-                  type="button"
-                  onClick={() => setShowPin(!showPin)}
-                  className="flex items-center justify-center w-14 h-14 text-text-hint hover:text-text-primary transition-colors"
-                >
-                  {showPin ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
+              <Controller
+                name="pin"
+                control={control}
+                render={({ field }) => {
+                  const pinArray = field.value.split('');
+                  // Ensure array has 4 elements
+                  while (pinArray.length < 4) pinArray.push('');
 
-            {/* Error Message */}
-            {error && (
-              <div className="flex items-center gap-3 p-4 bg-red-50 border border-danger rounded-lg">
-                <AlertCircle className="w-5 h-5 text-danger flex-shrink-0" />
-                <p className="text-sm font-medium text-danger">
-                  Invalid card number or PIN. Please try again.
-                </p>
-              </div>
-            )}
+                  return (
+                    <div className="flex gap-3 justify-center">
+                      {pinArray.map((digit, index) => (
+                        <input
+                          key={index}
+                          ref={(el) => {
+                            if (el) pinRefs.current[index] = el;
+                          }}
+                          type={showPin ? 'text' : 'password'}
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '').slice(-1);
+                            const newPinArray = [...pinArray];
+                            newPinArray[index] = val;
+                            field.onChange(newPinArray.join(''));
+
+                            if (val && index < 3) {
+                              pinRefs.current[index + 1]?.focus();
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Backspace' && !digit && index > 0) {
+                              pinRefs.current[index - 1]?.focus();
+                            }
+                          }}
+                          className={`w-14 h-14 text-center text-2xl font-bold border rounded-xl focus:ring-2 bg-bg-input ${
+                            errors.pin
+                              ? 'border-danger focus:border-danger focus:ring-danger/20'
+                              : 'border-border focus:border-brand-primary focus:ring-brand-secondary'
+                          }`}
+                        />
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => setShowPin(!showPin)}
+                        className="flex items-center justify-center w-14 h-14 text-text-hint hover:text-text-primary transition-colors"
+                      >
+                        {showPin ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                  );
+                }}
+              />
+              {errors.pin && <p className="mt-2 text-xs text-danger text-center">{errors.pin.message}</p>}
+            </div>
 
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={!isFormComplete || loading}
-              className="w-full btn-primary"
+              disabled={!isValid || loading}
+              className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                'Sign In'
-              )}
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sign In'}
             </button>
 
             {/* Demo Credentials */}

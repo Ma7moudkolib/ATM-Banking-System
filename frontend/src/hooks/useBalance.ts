@@ -1,10 +1,10 @@
 import { useState, useCallback } from 'react';
 import { getBalanceApi } from '../api/endpoints';
 import { useAuth } from '../context/AuthContext';
-import type { BalanceData } from '../types';
+import type { AccountBalance } from '../types';
 
 interface UseBalanceReturn {
-  balance: BalanceData | null;
+  balance: AccountBalance | null;
   loading: boolean;
   error: string | null;
   fetchBalance: () => Promise<void>;
@@ -12,7 +12,7 @@ interface UseBalanceReturn {
 
 export function useBalance(): UseBalanceReturn {
   const { sessionId } = useAuth();
-  const [balance, setBalance] = useState<BalanceData | null>(null);
+  const [balance, setBalance] = useState<AccountBalance | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

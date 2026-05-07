@@ -1,9 +1,9 @@
 import { ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import { formatCurrency, formatDate } from '../utils/formatCurrency';
-import type { TransactionData } from '../types';
+import type { TransactionResponse } from '../types';
 
 interface TransactionCardProps {
-  transaction: TransactionData;
+  transaction: TransactionResponse;
 }
 
 export default function TransactionCard({ transaction }: TransactionCardProps) {

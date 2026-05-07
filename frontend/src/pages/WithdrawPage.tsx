@@ -14,7 +14,7 @@ import {
   MapPin,
   CopyCheck,
 } from 'lucide-react';
-import type { TransactionData } from '../types';
+import type { TransactionResponse } from '../types';
 
 const QUICK_AMOUNTS = [20, 40, 80, 100, 200, 500];
 const ATM_MACHINES = [
@@ -31,7 +31,7 @@ export default function WithdrawPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorList, setErrorList] = useState<string[]>([]);
-  const [result, setResult] = useState<TransactionData | null>(null);
+  const [result, setResult] = useState<TransactionResponse | null>(null);
 
   function handleLogout() {
     logout();
