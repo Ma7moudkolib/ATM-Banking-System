@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.ATM.Infrastructure.Migrations
 {
     [DbContext(typeof(AtmDbContext))]
-    [Migration("20260405180507_AddSeedData")]
-    partial class AddSeedData
+    [Migration("20260507145117_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
