@@ -4,8 +4,8 @@ namespace Backend.ATM.Infrastructure.Seeding
 {
     public static class CardSeedData
     {
-        private const string PinHash1234 = "$2a$11$M/8cXrN0bGfYfK7xO6jM3eQq8u0Jw3xVQxQ5vWlA9QvHjQ9mYwY7K";
-        private const string PinHash5678 = "$2a$11$7oQZ0JrM0QeWmP4nJbFQ7uRj0n0f7V8cZrJQm9sLQvN2aXbT8cD1G";
+        private const string PinHash1234 = "$2a$11$nCdtdzVGJISdwC00RwVoV.7eLfiTtbcyXF5CFGHWpLybYmrXnvJ/C";
+        private const string PinHash5678 = "$2a$11$dJmjW2ruBbqHnitbHlTh2.rjAx3i8piCCD2ELxVzAT.htZSw29eEq";
 
         public static IEnumerable<object> GetSeeds()
         {

@@ -23,7 +23,7 @@ namespace Backend.ATM.Infrastructure.Context
             modelBuilder.Entity<Card>( entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
                 entity.OwnsOne(e => e.CardNumber,cardNumber =>
                 {
@@ -63,7 +63,7 @@ namespace Backend.ATM.Infrastructure.Context
             modelBuilder.Entity<Account>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
                 entity.Property(e => e.AccountNumber)
                     .HasMaxLength(20)
@@ -96,7 +96,7 @@ namespace Backend.ATM.Infrastructure.Context
             modelBuilder.Entity<Transaction>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
                 entity.Property(e => e.TransactionReference)
                     .HasMaxLength(50)
@@ -148,7 +148,7 @@ namespace Backend.ATM.Infrastructure.Context
             modelBuilder.Entity<LedgerEntry>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
                 entity.Property(e => e.EntryType).HasConversion<string>();
 
@@ -187,7 +187,7 @@ namespace Backend.ATM.Infrastructure.Context
             modelBuilder.Entity<AtmMachine>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
                 entity.Property(e => e.MachineCode)
                     .HasMaxLength(20)
@@ -216,7 +216,7 @@ namespace Backend.ATM.Infrastructure.Context
             modelBuilder.Entity<AuditLog>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
                 entity.Property(e => e.EntityType)
                     .HasMaxLength(100)
