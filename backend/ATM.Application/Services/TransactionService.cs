@@ -52,7 +52,7 @@ namespace Backend.ATM.Application.Services
                     $"ATM Withdrawal - {atm.Location}"
                 );
 
-                await _repository.Transaction.AddAsync(transaction);
+                _repository.Transaction.AddAsync(transaction);
 
                 account.Withdraw(money);
                 atm.DispenseCash(money.Amount);
@@ -61,6 +61,7 @@ namespace Backend.ATM.Application.Services
                 _repository.AtmMachine.Update(atm);
 
                 transaction.Complete(account.Balance);
+                await _repository.UnitOfWork.SaveChangesAsync();
 
                 var debitEntry = new LedgerEntry(
                     transaction.Id,
@@ -72,7 +73,7 @@ namespace Backend.ATM.Application.Services
                     $"Withdrawal - {transaction.TransactionReference}"
                 );
 
-                await _repository.Ledger.AddAsync(debitEntry);
+                _repository.Ledger.AddAsync(debitEntry);
 
                 await _repository.UnitOfWork.SaveChangesAsync();
                 await _repository.UnitOfWork.CommitTransactionAsync();
@@ -128,7 +129,7 @@ namespace Backend.ATM.Application.Services
                     $"ATM Deposit - {atm.Location}"
                 );
 
-                await _repository.Transaction.AddAsync(transaction);
+                _repository.Transaction.AddAsync(transaction);
 
                 account.Deposit(money);
                 atm.AcceptCash(money.Amount);
@@ -137,6 +138,7 @@ namespace Backend.ATM.Application.Services
                 _repository.AtmMachine.Update(atm);
 
                 transaction.Complete(account.Balance);
+                await _repository.UnitOfWork.SaveChangesAsync();
 
                 var creditEntry = new LedgerEntry(
                     transaction.Id,
@@ -148,7 +150,7 @@ namespace Backend.ATM.Application.Services
                     $"Deposit - {transaction.TransactionReference}"
                 );
 
-                await _repository.Ledger.AddAsync(creditEntry);
+                _repository.Ledger.AddAsync(creditEntry);
 
                 await _repository.UnitOfWork.SaveChangesAsync();
                 await _repository.UnitOfWork.CommitTransactionAsync();

@@ -10,7 +10,7 @@ namespace Backend.ATM.Application.Services
     {
         private readonly IRepositoryManager _repository;
         private readonly IMemoryCache _cache;
-        private const int SessionExpirationMinutes = 5;
+        private const int SessionExpirationMinutes = 20;
 
         public AuthenticationService(IRepositoryManager repository, IMemoryCache cache)
         {
@@ -26,7 +26,7 @@ namespace Backend.ATM.Application.Services
             if (card == null)
                 throw new UnauthorizedAccessException("Invalid card number");
 
-//            card.ValidatePin(request.Pin);
+            card.ValidatePin(request.Pin);
 
             var sessionId = Guid.NewGuid();
             var expiresAt = DateTime.UtcNow.AddMinutes(SessionExpirationMinutes);

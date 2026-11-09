@@ -19,9 +19,8 @@ namespace Backend.ATM.API.Controllers
             _logger = logger;
         }
 
-        /// <summary>
-        /// Withdraw cash from account
-        /// </summary>
+
+        // Withdraw cash from account
         [HttpPost("withdraw")]
         [ProducesResponseType(typeof(ApiResponse<TransactionResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -39,9 +38,8 @@ namespace Backend.ATM.API.Controllers
             ));
         }
 
-        /// <summary>
-        /// Deposit cash to account
-        /// </summary>
+
+        // Deposit cash to account
         [HttpPost("deposit")]
         [ProducesResponseType(typeof(ApiResponse<TransactionResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -59,9 +57,8 @@ namespace Backend.ATM.API.Controllers
             ));
         }
 
-        /// <summary>
-        /// Get transaction history
-        /// </summary>
+
+        // Get transaction history
         [HttpPost("history")]
         [ProducesResponseType(typeof(ApiResponse<TransactionHistoryResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]

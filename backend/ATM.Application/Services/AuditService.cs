@@ -16,7 +16,7 @@ namespace Backend.ATM.Application.Services
         public async Task LogAsync(string entityType, int entityId, string action, string changes, string performedBy, string ipAddress)
         {
             var auditLog = new AuditLog(entityType, entityId, action, changes, performedBy, ipAddress);
-            await _repository.AuditLog.AddAsync(auditLog);
+            _repository.AuditLog.AddAsync(auditLog);
             await _repository.UnitOfWork.SaveChangesAsync();
         }
     }

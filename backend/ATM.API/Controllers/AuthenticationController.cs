@@ -20,9 +20,7 @@ namespace Backend.ATM.API.Controllers
             _logger = logger;
         }
 
-        /// <summary>
-        /// Authenticate card with PIN
-        /// </summary>
+        // Authenticate card with PIN
         [HttpPost("login")]
         [ProducesResponseType(typeof(ApiResponse<CardAuthResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -39,9 +37,8 @@ namespace Backend.ATM.API.Controllers
             ));
         }
 
-        /// <summary>
-        /// Validate session
-        /// </summary>
+   
+        // Validate session
         [HttpGet("validate/{sessionId}")]
         [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
         public async Task<IActionResult> ValidateSession(Guid sessionId)

@@ -19,9 +19,8 @@ namespace Backend.ATM.API.Controllers
             _logger = logger;
         }
 
-        /// <summary>
-        /// Get account balance
-        /// </summary>
+
+        // Get account balance
         [HttpGet("balance/{sessionId}")]
         [ProducesResponseType(typeof(ApiResponse<BalanceInquiryResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
@@ -38,9 +37,8 @@ namespace Backend.ATM.API.Controllers
             ));
         }
 
-        /// <summary>
-        /// Get account details
-        /// </summary>
+
+        // Get account details
         [HttpGet("details/{sessionId}")]
         [ProducesResponseType(typeof(ApiResponse<AccountDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
