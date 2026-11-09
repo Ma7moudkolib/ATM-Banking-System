@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Backend.ATM.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class initial_migration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,7 +17,8 @@ namespace Backend.ATM.Infrastructure.Migrations
                 name: "Accounts",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     AccountNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     CustomerName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Balance = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
@@ -36,7 +37,8 @@ namespace Backend.ATM.Infrastructure.Migrations
                 name: "AtmMachines",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     MachineCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Location = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -55,7 +57,8 @@ namespace Backend.ATM.Infrastructure.Migrations
                 name: "AuditLogs",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     EntityType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     EntityId = table.Column<int>(type: "int", nullable: false),
                     Action = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
@@ -75,7 +78,8 @@ namespace Backend.ATM.Infrastructure.Migrations
                 name: "Cards",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     CardNumber = table.Column<string>(type: "nvarchar(19)", maxLength: 19, nullable: false),
                     HashedPin = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     AccountId = table.Column<int>(type: "int", nullable: false),
@@ -103,7 +107,8 @@ namespace Backend.ATM.Infrastructure.Migrations
                 name: "Transactions",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     TransactionReference = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     AccountId = table.Column<int>(type: "int", nullable: false),
                     CardId = table.Column<int>(type: "int", nullable: true),
@@ -146,7 +151,8 @@ namespace Backend.ATM.Infrastructure.Migrations
                 name: "LedgerEntries",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     TransactionId = table.Column<int>(type: "int", nullable: false),
                     AccountId = table.Column<int>(type: "int", nullable: false),
                     EntryType = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -208,8 +214,8 @@ namespace Backend.ATM.Infrastructure.Migrations
                 columns: new[] { "Id", "AccountId", "BlockedAt", "CreatedAt", "DailyWithdrawalLimit", "ExpiryDate", "FailedPinAttempts", "LastFailedAttempt", "Status", "UpdatedAt", "CardNumber", "HashedPin" },
                 values: new object[,]
                 {
-                    { 1, 1, null, new DateTime(2026, 1, 10, 8, 45, 0, 0, DateTimeKind.Utc), 1000, new DateTime(2029, 12, 31, 0, 0, 0, 0, DateTimeKind.Utc), 0, null, "Active", null, "4532015112830366", "$2a$11$M/8cXrN0bGfYfK7xO6jM3eQq8u0Jw3xVQxQ5vWlA9QvHjQ9mYwY7K" },
-                    { 2, 2, null, new DateTime(2026, 1, 11, 10, 0, 0, 0, DateTimeKind.Utc), 1500, new DateTime(2030, 6, 30, 0, 0, 0, 0, DateTimeKind.Utc), 0, null, "Active", null, "4485275742308327", "$2a$11$7oQZ0JrM0QeWmP4nJbFQ7uRj0n0f7V8cZrJQm9sLQvN2aXbT8cD1G" }
+                    { 1, 1, null, new DateTime(2026, 1, 10, 8, 45, 0, 0, DateTimeKind.Utc), 1000, new DateTime(2029, 12, 31, 0, 0, 0, 0, DateTimeKind.Utc), 0, null, "Active", null, "4532015112830366", "$2a$11$nCdtdzVGJISdwC00RwVoV.7eLfiTtbcyXF5CFGHWpLybYmrXnvJ/C" },
+                    { 2, 2, null, new DateTime(2026, 1, 11, 10, 0, 0, 0, DateTimeKind.Utc), 1500, new DateTime(2030, 6, 30, 0, 0, 0, 0, DateTimeKind.Utc), 0, null, "Active", null, "4485275742308327", "$2a$11$dJmjW2ruBbqHnitbHlTh2.rjAx3i8piCCD2ELxVzAT.htZSw29eEq" }
                 });
 
             migrationBuilder.InsertData(

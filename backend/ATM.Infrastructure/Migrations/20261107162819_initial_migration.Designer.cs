@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.ATM.Infrastructure.Migrations
 {
     [DbContext(typeof(AtmDbContext))]
-    [Migration("20260507145117_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20261107162819_initial_migration")]
+    partial class initial_migration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,7 +28,10 @@ namespace Backend.ATM.Infrastructure.Migrations
             modelBuilder.Entity("Backend.ATM.Domain.Entities.Account", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AccountNumber")
                         .IsRequired()
@@ -98,7 +101,10 @@ namespace Backend.ATM.Infrastructure.Migrations
             modelBuilder.Entity("Backend.ATM.Domain.Entities.AtmMachine", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("CashAvailable")
                         .HasPrecision(18, 2)
@@ -168,7 +174,10 @@ namespace Backend.ATM.Infrastructure.Migrations
             modelBuilder.Entity("Backend.ATM.Domain.Entities.AuditLog", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Action")
                         .IsRequired()
@@ -257,7 +266,10 @@ namespace Backend.ATM.Infrastructure.Migrations
             modelBuilder.Entity("Backend.ATM.Domain.Entities.Card", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AccountId")
                         .HasColumnType("int");
@@ -319,7 +331,10 @@ namespace Backend.ATM.Infrastructure.Migrations
             modelBuilder.Entity("Backend.ATM.Domain.Entities.LedgerEntry", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AccountId")
                         .HasColumnType("int");
@@ -400,7 +415,10 @@ namespace Backend.ATM.Infrastructure.Migrations
             modelBuilder.Entity("Backend.ATM.Domain.Entities.Transaction", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AccountId")
                         .HasColumnType("int");
@@ -573,12 +591,12 @@ namespace Backend.ATM.Infrastructure.Migrations
                                 new
                                 {
                                     CardId = 1,
-                                    HashedValue = "$2a$11$M/8cXrN0bGfYfK7xO6jM3eQq8u0Jw3xVQxQ5vWlA9QvHjQ9mYwY7K"
+                                    HashedValue = "$2a$11$nCdtdzVGJISdwC00RwVoV.7eLfiTtbcyXF5CFGHWpLybYmrXnvJ/C"
                                 },
                                 new
                                 {
                                     CardId = 2,
-                                    HashedValue = "$2a$11$7oQZ0JrM0QeWmP4nJbFQ7uRj0n0f7V8cZrJQm9sLQvN2aXbT8cD1G"
+                                    HashedValue = "$2a$11$dJmjW2ruBbqHnitbHlTh2.rjAx3i8piCCD2ELxVzAT.htZSw29eEq"
                                 });
                         });
 
