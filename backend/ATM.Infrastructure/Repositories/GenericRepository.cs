@@ -36,9 +36,9 @@ namespace Backend.ATM.Infrastructure.Repositories
             return await _dbSet.FirstOrDefaultAsync(predicate);
         }
 
-        public async Task AddAsync(T entity)
+        public void AddAsync(T entity)
         {
-            await _dbSet.AddAsync(entity);
+            _dbSet.AddAsync(entity);
         }
 
         public void Update(T entity)

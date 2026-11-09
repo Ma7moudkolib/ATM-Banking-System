@@ -7,7 +7,7 @@ namespace Backend.ATM.Infrastructure.Repositories
     public class UnitOfWork : IUnitOfWork
     {
         private readonly AtmDbContext _context;
-        private IDbContextTransaction _transaction;
+        private IDbContextTransaction? _transaction;
 
         public UnitOfWork(AtmDbContext context)
         {
@@ -29,7 +29,7 @@ namespace Backend.ATM.Infrastructure.Repositories
             try
             {
                 await _context.SaveChangesAsync();
-                await _transaction?.CommitAsync();
+                await _transaction!.CommitAsync();
             }
             catch
             {

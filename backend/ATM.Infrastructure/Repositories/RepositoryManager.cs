@@ -5,7 +5,7 @@ namespace Backend.ATM.Infrastructure.Repositories
 {
     public class RepositoryManager : IRepositoryManager
     {
-        private readonly AtmDbContext _context;
+
         private readonly Lazy<ICardRepository> _cardRepository;
         private readonly Lazy<IAccountRepository> _accountRepository;
         private readonly Lazy<ITransactionRepository> _transactionRepository;
@@ -16,7 +16,7 @@ namespace Backend.ATM.Infrastructure.Repositories
 
         public RepositoryManager(AtmDbContext context)
         {
-            _context = context;
+
             _cardRepository = new Lazy<ICardRepository>(() => new CardRepository(context));
             _accountRepository = new Lazy<IAccountRepository>(() => new AccountRepository(context));
             _transactionRepository = new Lazy<ITransactionRepository>(() => new TransactionRepository(context));
